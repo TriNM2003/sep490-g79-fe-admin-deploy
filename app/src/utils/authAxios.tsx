@@ -96,7 +96,7 @@ const useAuthAxios = () => {
         return Promise.reject();
       }
 
-      return config;
+      // return config;
     },
     function (error: AxiosError): Promise<AxiosError> {
       // Do something with request error
