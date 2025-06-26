@@ -34,7 +34,6 @@ const addUserSchema = z
     ),
     email: z.string().email("Email không hợp lệ"),
     password: z.string().min(6, "Mật khẩu phải từ 6 ký tự"),
-    accountType: z.string().min(1, "Vui lòng chọn loại tài khoản"),
     roles: z.array(z.string()).min(1, "Vui lòng chọn vai trò"),
   })
 
@@ -52,7 +51,6 @@ const UserManagement = () => {
             fullName: "",
             email: "",
             password: "",
-            accountType: "",
             roles: [],
           },
         });
@@ -70,16 +68,16 @@ const UserManagement = () => {
     }, [])
 
     
-    const handleAddUser = ({fullName, email, password, accountType, roles}: z.infer<typeof addUserSchema>)  => {
+    const handleAddUser = ({fullName, email, password, roles}: z.infer<typeof addUserSchema>)  => {
       console.log("add user")
-      console.log(fullName, email, password, accountType, roles)
+      console.log(fullName, email, password, roles)
       // xử lý logic thêm user
     };
 
     const columns: ColumnDef<UserTableData>[] = [
       {
         header: "STT",
-        cell: ({ row }) => row.index + 1,
+        cell: ({ row }) => <p className='text-center'>{row.index + 1}</p>
       },
       {
         accessorKey: "avatar",
@@ -88,7 +86,7 @@ const UserManagement = () => {
           <img
             src={row.original.avatar}
             alt={row.original.fullName}
-            className="h-10 w-10 rounded-full object-cover"
+            className="h-10 w-10 rounded-full object-cover mx-auto"
           />
         ),
       },
@@ -103,11 +101,14 @@ const UserManagement = () => {
               }
               className="cursor-pointer"
             >
-              Tên người dùng
+              Họ và tên
               <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
           );
         },
+        cell: ({row}) => {
+          return <span className='px-2'>{row.original.fullName}</span>
+        }
       },
       {
         accessorKey: "email",
@@ -125,6 +126,9 @@ const UserManagement = () => {
             </Button>
           );
         },
+        cell: ({row}) => {
+          return <span className='px-2'>{row.original.email}</span>
+        }
       },
       {
         accessorKey: "roles",
@@ -142,6 +146,16 @@ const UserManagement = () => {
             </Button>
           );
         },
+        cell: ({ row }) => {
+          const roleTiengViet = row.original.roles.map((role, index) => {
+            if(index !== row.original.roles.length - 1){
+              return role === "user" ? "Người dùng, " : "Quản trị viên, ";
+            }else{
+              return role === "user" ? "Người dùng" : "Quản trị viên";
+            }
+          });
+          return <span className='px-3 font-semibold uppercase'>{roleTiengViet}</span>
+        }
       },
       {
         accessorKey: "status",
@@ -161,13 +175,19 @@ const UserManagement = () => {
         },
         cell: ({ row }) => {
           const status = row.original.status;
-          const color =
-            status === "active"
-              ? "text-green-500"
-              : status === "banned"
-              ? "text-red-500"
-              : "text-yellow-500";
-          return <span className={color}>{status}</span>;
+          let color = "";
+          let statusTiengViet = "";
+          if (status === "active") {
+            statusTiengViet = "Đã kích hoạt";
+            color = "text-green-500 font-semibold uppercase";
+          } else if(status === "verifying"){
+            statusTiengViet = "Chờ kích hoạt";
+            color = "text-yellow-500 font-semibold uppercase";
+          }else{
+            statusTiengViet = "Bị cấm";
+            color = "text-destructive font-semibold uppercase";
+          }
+          return <span className={color + " px-2"}>{statusTiengViet}</span>;
         },
       },
       {
@@ -187,7 +207,7 @@ const UserManagement = () => {
           );
         },
         cell: ({ row }) =>
-          new Date(row.original.createdAt).toLocaleDateString(),
+          <span className='px-2'>{new Date(row.original.createdAt).toLocaleDateString("vi-VN")}</span>
       },
       {
         id: "actions",
@@ -264,194 +284,161 @@ const UserManagement = () => {
       </Breadcrumb>
 
       <div className="@container/main flex flex-1 flex-col gap-2">
-        <div className="col-span-12 px-5 flex flex-row gap-5">
-          <h4 className="scroll-m-20 min-w-40 text-xl font-semibold tracking-tight">
+        <div className="col-span-12 px-5 flex flex-col gap-5">
+          <h4 className="scroll-m-20 min-w-40 text-xl font-semibold tracking-tight text-center">
             Danh sách người dùng
           </h4>
-          <Input
-            type="string"
-            placeholder="Tìm kiếm theo tên hoặc email"
-            onChange={(e) =>
-              searchUsersByFullnameOrEmail(userData, e.target.value)
-            }
-          />
-          <Dialog
-            onOpenChange={(isOpen) => {
-              if (!isOpen) {
-                form.reset(); // reset mỗi khi Dialog đóng
+          <div className="flex flex-row gap-7">
+            <Input
+              className="max-w-1/3"
+              type="string"
+              placeholder="Tìm kiếm theo tên hoặc email"
+              onChange={(e) =>
+                searchUsersByFullnameOrEmail(userData, e.target.value)
               }
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button className="cursor-pointer">
-                <Users /> Thêm tài khoản
-              </Button>
-            </DialogTrigger>
+            />
+            <Dialog
+              onOpenChange={(isOpen) => {
+                if (!isOpen) {
+                  form.reset(); // reset mỗi khi Dialog đóng
+                }
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button className="cursor-pointer">
+                  <Users /> Thêm tài khoản
+                </Button>
+              </DialogTrigger>
 
-            <DialogContent className="sm:max-w-[425px]">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleAddUser)}>
-                  <DialogHeader>
-                    <DialogTitle>Thêm tài khoản</DialogTitle>
-                    <DialogDescription>
-                      Tạo thêm tài khoản hệ thống mới.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <FormField
-                    control={form.control}
-                    name="fullName"
-                    render={({ field }) => (
-                      <FormItem className="py-4">
-                        <FormLabel>
-                          Họ và tên<span className="text-destructive">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Nguyễn Văn A" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem className="py-4">
-                        <FormLabel>
-                          Email<span className="text-destructive">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="nguyenvana@gmail.com"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem className="py-4">
-                        <FormLabel>
-                          Mật khẩu<span className="text-destructive">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="accountType"
-                    render={({ field }) => (
-                      <FormItem className="py-4">
-                        <FormLabel>
-                          Loại tài khoản
-                          <span className="text-destructive">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="flex flex-col space-y-2"
-                          >
+              <DialogContent className="sm:max-w-[425px]">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(handleAddUser)}>
+                    <DialogHeader>
+                      <DialogTitle>Thêm tài khoản</DialogTitle>
+                      <DialogDescription>
+                        Tạo thêm tài khoản hệ thống mới.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <FormField
+                      control={form.control}
+                      name="fullName"
+                      render={({ field }) => (
+                        <FormItem className="py-4">
+                          <FormLabel>
+                            Họ và tên<span className="text-destructive">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Nguyễn Văn A" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem className="py-4">
+                          <FormLabel>
+                            Email<span className="text-destructive">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="nguyenvana@gmail.com"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem className="py-4">
+                          <FormLabel>
+                            Mật khẩu<span className="text-destructive">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="roles"
+                      render={({ field }) => (
+                        <FormItem className="py-4">
+                          <FormLabel>
+                            Vai trò<span className="text-destructive">*</span>
+                          </FormLabel>
+                          <div className="flex flex-col space-y-2">
                             <FormItem className="flex items-center space-x-3 space-y-0">
                               <FormControl>
-                                <RadioGroupItem value="normalAccount" id="r1" />
+                                <Checkbox
+                                  id="user"
+                                  checked={field.value?.includes("user")}
+                                  onCheckedChange={(checked) => {
+                                    const isChecked = checked === true;
+                                    if (isChecked) {
+                                      field.onChange([...field.value, "user"]);
+                                    } else {
+                                      field.onChange(
+                                        field.value.filter((v) => v !== "user")
+                                      );
+                                    }
+                                  }}
+                                />
                               </FormControl>
-                              <FormLabel htmlFor="r1">
-                                Tài khoản thường
+                              <FormLabel htmlFor="user">
+                                Người dùng thông thường
                               </FormLabel>
                             </FormItem>
 
                             <FormItem className="flex items-center space-x-3 space-y-0">
                               <FormControl>
-                                <RadioGroupItem value="googleAccount" id="r2" />
+                                <Checkbox
+                                  id="admin"
+                                  checked={field.value?.includes("admin")}
+                                  onCheckedChange={(checked) => {
+                                    const isChecked = checked === true;
+                                    if (isChecked) {
+                                      field.onChange([...field.value, "admin"]);
+                                    } else {
+                                      field.onChange(
+                                        field.value.filter((v) => v !== "admin")
+                                      );
+                                    }
+                                  }}
+                                />
                               </FormControl>
-                              <FormLabel htmlFor="r2">
-                                Tài khoản Google
+                              <FormLabel htmlFor="admin">
+                                Quản trị viên
                               </FormLabel>
                             </FormItem>
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="roles"
-                    render={({ field }) => (
-                      <FormItem className="py-4">
-                        <FormLabel>
-                          Vai trò<span className="text-destructive">*</span>
-                        </FormLabel>
-                        <div className="flex flex-col space-y-2">
-                          <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                id="user"
-                                checked={field.value?.includes("user")}
-                                onCheckedChange={(checked) => {
-                                  const isChecked = checked === true;
-                                  if (isChecked) {
-                                    field.onChange([...field.value, "user"]);
-                                  } else {
-                                    field.onChange(
-                                      field.value.filter((v) => v !== "user")
-                                    );
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel htmlFor="user">
-                              Người dùng thông thường
-                            </FormLabel>
-                          </FormItem>
-
-                          <FormItem className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                id="admin"
-                                checked={field.value?.includes("admin")}
-                                onCheckedChange={(checked) => {
-                                  const isChecked = checked === true;
-                                  if (isChecked) {
-                                    field.onChange([...field.value, "admin"]);
-                                  } else {
-                                    field.onChange(
-                                      field.value.filter((v) => v !== "admin")
-                                    );
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel htmlFor="admin">Quản trị viên</FormLabel>
-                          </FormItem>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button variant="outline" className="cursor-pointer">
-                        Đóng
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="outline" className="cursor-pointer">
+                          Đóng
+                        </Button>
+                      </DialogClose>
+                      <Button type="submit" className="cursor-pointer">
+                        Thêm người dùng
                       </Button>
-                    </DialogClose>
-                    <Button type="submit" className="cursor-pointer">
-                      Thêm người dùng
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
         <div className="col-span-12 px-5">
           <DataTable columns={columns} data={filteredUsers ?? []} />

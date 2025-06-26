@@ -1,5 +1,6 @@
 export interface ShelterTableData {
     index: number;
+    _id: string;
     avatar: string;
     name: string;
     email: string;
