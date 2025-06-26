@@ -31,7 +31,7 @@ const ShelterEstablishmentRequestsList = () => {
         useEffect(() => {
           authAxios.get(`${shelterAPI}/get-shelter-requests-list`)
         .then(({data}) => {
-          // console.log(data)
+            console.log(data)
             setShelterRequestData(data);
             setFilteredShelterRequestData(data);
         })
@@ -77,6 +77,27 @@ const ShelterEstablishmentRequestsList = () => {
           },
         },
         {
+          accessorKey: "createdBy",
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                className="cursor-pointer"
+              >
+                Tạo bởi
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            );
+          },
+          cell: ({ row }) => {
+            return <div className='flex flex-row gap-2'><Avatar>
+              <AvatarImage src={row.original?.createdBy.avatar} alt={'avaar nguoi dung '+ row.original.createdBy.fullName}></AvatarImage>
+              <AvatarFallback>User avatar</AvatarFallback>
+            </Avatar> <span className='my-auto'>{row.original.createdBy.fullName}</span></div>
+          },
+        },
+        {
           accessorKey: "createdAt",
           header: ({ column }) => {
             return (
@@ -105,6 +126,10 @@ const ShelterEstablishmentRequestsList = () => {
               hotline: row.original.hotline,
               address: row.original.address,
               shelterLicenseURL: row.original.shelterLicenseURL,
+              createdBy: {
+                fullName: row.original.createdBy.fullName,
+                avatar: row.original.createdBy.avatar,
+              },
               createdAt: row.original.createdAt,
               updateAt: row.original.updateAt,
             });
@@ -222,67 +247,41 @@ const ShelterEstablishmentRequestsList = () => {
           </DialogHeader>
 
           <div className="flex flex-col gap-3 py-3">
-            {/* <div className="flex flex-row">
-              <span className="font-medium border-2 border-solid rounded-lg border-muted-foreground px-2 py-1 h-fit">
-                Ảnh đại diện trạm cứu hộ
-              </span>
-              <span className="ms-1">
-                {selectedShelterRequest !== null && (
-                  <PhotoView src={selectedShelterRequest.avatar}>
-                    <img
-                      src={selectedShelterRequest.avatar}
-                      alt="shelterAvatar"
-                      className="w-16 h-16 rounded-sm object-cover cursor-pointer"
-                    />
-                  </PhotoView>
-                )}
-              </span>
-            </div> */}
             <div>
-              <span className="font-medium border-2 border-solid rounded-lg border-muted-foreground px-2 py-1">
-                Tên trạm cứu hộ
-              </span>
-              <span className="ms-1">
+              <p className="font-medium px-2 py-1">Tên trạm cứu hộ</p>
+              <p className="px-2">
                 {selectedShelterRequest !== null
                   ? selectedShelterRequest.name
                   : "No data"}
-              </span>
+              </p>
             </div>
             <div>
-              <span className="font-medium border-2 border-solid rounded-lg border-muted-foreground px-2 py-1">
-                Email
-              </span>
-              <span className="ms-1">
+              <p className="font-medium px-2 py-1">Email</p>
+              <p className="px-2">
                 {selectedShelterRequest !== null
                   ? selectedShelterRequest.email
                   : "No data"}
-              </span>
+              </p>
             </div>
             <div>
-              <span className="font-medium border-2 border-solid rounded-lg border-muted-foreground px-2 py-1">
-                Hotline
-              </span>
-              <span className="ms-1">
+              <p className="font-medium px-2 py-1">Hotline</p>
+              <p className="px-2">
                 {selectedShelterRequest !== null
                   ? selectedShelterRequest.hotline
                   : "No data"}
-              </span>
+              </p>
             </div>
             <div>
-              <span className="font-medium border-2 border-solid rounded-lg border-muted-foreground px-2 py-1">
-                Địa chỉ
-              </span>
-              <span className="ms-1">
+              <p className="font-medium px-2 py-1">Địa chỉ</p>
+              <p className="px-2">
                 {selectedShelterRequest !== null
                   ? selectedShelterRequest.address
                   : "No data"}
-              </span>
+              </p>
             </div>
             <div>
-              <span className="font-medium border-2 border-solid rounded-lg border-muted-foreground px-2 py-1">
-                Giấy phép hoạt động
-              </span>
-              <span className="ms-1">
+              <p className="font-medium px-2 py-1">Giấy phép hoạt động</p>
+              <p className="px-2">
                 <a
                   href={
                     selectedShelterRequest !== null
@@ -295,19 +294,30 @@ const ShelterEstablishmentRequestsList = () => {
                 >
                   Xem tài liệu
                 </a>
-              </span>
+              </p>
+            </div>
+            <div className="flex flex-col">
+              <p className="font-medium px-2 py-1 h-fit">Tạo bởi</p>
+              <p className="px-2 flex flex-row gap-2">
+                <Avatar>
+                  <AvatarImage
+                    src={selectedShelterRequest?.createdBy.avatar}
+                  ></AvatarImage>
+                </Avatar>
+                <span className="my-auto">
+                  {selectedShelterRequest?.createdBy.fullName}
+                </span>
+              </p>
             </div>
             <div>
-              <span className="font-medium border-2 border-solid rounded-lg border-muted-foreground px-2 py-1">
-                Ngày tạo
-              </span>
-              <span className="ms-1">
+              <p className="font-medium px-2 py-1">Ngày tạo</p>
+              <p className="px-2">
                 {new Date(
                   selectedShelterRequest !== null
                     ? selectedShelterRequest.createdAt
                     : "No data"
                 ).toLocaleString()}
-              </span>
+              </p>
             </div>
           </div>
 

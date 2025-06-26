@@ -1,5 +1,7 @@
 
 import { DataTable } from '@/components/data-table'
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox';
@@ -17,6 +19,7 @@ import type { ColumnDef, ColumnFiltersState, SortingState } from '@tanstack/reac
 import { ArrowUpDown, Ban, ChevronsUpDown, MoreHorizontal, RotateCcwKey, Users } from 'lucide-react'
 import React, { useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 
@@ -40,9 +43,7 @@ const addUserSchema = z
 const UserManagement = () => {
     const [userData, setUserData] = useState<UserTableData[]>([]);
     const [filteredUsers, setFilteredUsers] = useState<UserTableData[]>([]);
-    const [actionUser, setActionUser] = useState<UserTableData | null>(null)
-    const [confirmType, setConfirmType] = useState<"ban" | "unban" | null>(null)
-    const {userAPI} = useContext(AppContext);
+    const {userAPI, coreAPI} = useContext(AppContext);
     const authAxios = useAuthAxios();
 
         const form = useForm<z.infer<typeof addUserSchema>>({
@@ -58,7 +59,7 @@ const UserManagement = () => {
     useEffect(() => {
       authAxios.get(`${userAPI}/get-users-list`)
       .then(function({data}){
-        console.log(data)
+        // console.log(data)
         setUserData(data.usersList)
         setFilteredUsers(data.usersList)
       })
@@ -68,10 +69,71 @@ const UserManagement = () => {
     }, [])
 
     
-    const handleAddUser = ({fullName, email, password, roles}: z.infer<typeof addUserSchema>)  => {
-      console.log("add user")
-      console.log(fullName, email, password, roles)
-      // xử lý logic thêm user
+    const handleAddUser = async ({
+      fullName,
+      email,
+      password,
+      roles,
+    }: z.infer<typeof addUserSchema>) => {
+      try {
+        console.log("add user");
+        console.log(fullName, email, password, roles);
+        // const response = await authAxios.post(`${coreAPI}/admin/add-user`, {
+        //   fullName,
+        //   email,
+        //   password,
+        //   roles,
+        // });
+        // console.log(response?.data.message);
+        setTimeout(() => {
+          toast.success("Tạo người dùng mới thành công!")
+        }, 2000)
+      } catch (error: any) {
+        console.log(error?.response.data.message);
+      }
+    };
+
+    const handleBanUser = async (userId : string) => {
+      try {
+        console.log("ban user");
+        console.log(userId);
+    
+        // const response = await authAxios.put(`${coreAPI}/admin/ban-user/${userId}`);
+        // console.log(response?.data.message);
+        toast.success("Ban người dùng thành công!")
+      } catch (error: any) {
+        console.log(error?.response.data.message);
+      }
+    };
+
+    const handleUnbanUser = async (userId : string) => {
+      try {
+        console.log("unban user");
+        console.log(userId);
+    
+        // const response = await authAxios.put(`${coreAPI}/admin/unban-user/${userId}`);
+        // console.log(response?.data.message);
+        toast.success("Unban người dùng thành công!")
+      } catch (error: any) {
+        console.log(error?.response.data.message);
+      }
+    };
+
+    const handleChangeUserRole = async (userId : string, roles: string[]) => {
+      try {
+        console.log("change user role");
+        console.log(userId, roles);
+
+        if(roles.length === 0){
+          toast.error("Người dùng phải có ít nhất 1 vai trò")
+        }
+    
+        // const response = await authAxios.put(`${coreAPI}/admin/change-roles/${userId}`, {roles});
+        // console.log(response?.data.message);
+        // toast.success("Thay đổi vai trò người dùng thành công!")
+      } catch (error: any) {
+        console.log(error?.response.data.message);
+      }
     };
 
     const columns: ColumnDef<UserTableData>[] = [
@@ -147,14 +209,61 @@ const UserManagement = () => {
           );
         },
         cell: ({ row }) => {
-          const roleTiengViet = row.original.roles.map((role, index) => {
-            if(index !== row.original.roles.length - 1){
-              return role === "user" ? "Người dùng, " : "Quản trị viên, ";
-            }else{
-              return role === "user" ? "Người dùng" : "Quản trị viên";
+          const [selectedRoles, setSelectedRoles] = useState<string[]>(row.original.roles)
+          const handleToggleRole = (role: string) => {
+      setSelectedRoles(prev =>
+        prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]
+      )
+    }
+
+          return <Dialog onOpenChange={(open) => {
+            if(!open){
+              setSelectedRoles(row.original.roles);
             }
-          });
-          return <span className='px-3 font-semibold uppercase'>{roleTiengViet}</span>
+          }}>
+        <DialogTrigger asChild>
+          <div className="flex flex-row gap-2 cursor-pointer">
+            {row.original.roles.map((role) => (
+              <Badge key={role} variant="default">
+                {role === "user" ? "Người dùng" : "Quản trị viên"}
+              </Badge>
+            ))}
+          </div>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogTitle>Thay đổi vai trò</DialogTitle>
+          <DialogDescription></DialogDescription>
+          <div className="flex flex-col gap-4">
+            <div className="space-y-2">
+              <div className='flex flex-row gap-2'>
+                <Avatar>
+                  <AvatarImage
+                    src={row.original?.avatar}
+                  ></AvatarImage>
+                </Avatar>
+                <span className="my-auto">
+                  {row.original?.fullName}
+                </span>
+              </div>
+              {["user", "admin"].map((role) => (
+                <label key={role} className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={selectedRoles.includes(role)}
+                    onCheckedChange={() => handleToggleRole(role)}
+                  />
+                  <span>{role === "user" ? "Người dùng" : "Quản trị viên"}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end flex-row gap-2">
+              <DialogClose asChild>
+                <Button variant="secondary" className='cursor-pointer'>Đóng</Button>
+              </DialogClose>
+              <Button onClick={e => handleChangeUserRole(row.original._id, selectedRoles)} className='cursor-pointer'>Thay đổi</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
         }
       },
       {
@@ -180,14 +289,16 @@ const UserManagement = () => {
           if (status === "active") {
             statusTiengViet = "Đã kích hoạt";
             color = "text-green-500 font-semibold uppercase";
+            return <Badge variant="default">{statusTiengViet}</Badge>
           } else if(status === "verifying"){
             statusTiengViet = "Chờ kích hoạt";
             color = "text-yellow-500 font-semibold uppercase";
+            return <Badge variant="secondary">{statusTiengViet}</Badge>
           }else{
             statusTiengViet = "Bị cấm";
             color = "text-destructive font-semibold uppercase";
+            return <Badge variant="destructive">{statusTiengViet}</Badge>
           }
-          return <span className={color + " px-2"}>{statusTiengViet}</span>;
         },
       },
       {
@@ -226,8 +337,7 @@ const UserManagement = () => {
             >
               <DropdownMenuItem
                 onClick={() => {
-                  setActionUser(row.original);
-                  setConfirmType("ban");
+                  handleBanUser(row.original._id);
                 }}
                 className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
               >
@@ -237,8 +347,7 @@ const UserManagement = () => {
 
               <DropdownMenuItem
                 onClick={() => {
-                  setActionUser(row.original);
-                  setConfirmType("unban");
+                  handleUnbanUser(row.original._id);
                 }}
                 className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
               >

@@ -7,6 +7,10 @@ export interface ShelterEstablishmentRequestTableData {
     hotline: number;
     address: string;
     shelterLicenseURL: string;
+    createdBy: {
+        fullName: string;
+        avatar: string
+    }
     createdAt: Date;
     updateAt: Date;
 }
