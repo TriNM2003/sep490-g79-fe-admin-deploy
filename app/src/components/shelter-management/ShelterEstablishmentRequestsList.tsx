@@ -15,6 +15,7 @@ import { useContext, useEffect, useState } from 'react';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import { toast } from 'sonner';
+import { Badge } from '../ui/badge';
 
 const examplePhoto = "https://images.squarespace-cdn.com/content/v1/54822a56e4b0b30bd821480c/45ed8ecf-0bb2-4e34-8fcf-624db47c43c8/Golden+Retrievers+dans+pet+care.jpeg";
 
@@ -97,6 +98,44 @@ const ShelterEstablishmentRequestsList = () => {
             </Avatar> <span className='my-auto'>{row.original.createdBy.fullName}</span></div>
           },
         },
+         {
+              accessorKey: "status",
+              header: ({ column }) => {
+                return (
+                  <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="cursor-pointer"
+                  >
+                    Trạng thái
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                );
+              },
+              cell: ({ row }) => {
+                const status = row.original.status as string;
+        
+                const statusMap: Record<
+                  string,
+                  {
+                    label: string;
+                    variant: "default" | "destructive" | "secondary";
+                  }
+                > = {
+                  active: { label: "Chấp thuận", variant: "default" },
+                  banned: { label: "Bị cấm", variant: "destructive" },
+                  rejected: { label: "Từ chối", variant: "destructive" },
+                  verifying: { label: "Đang chờ duyệt", variant: "secondary" },
+                };
+        
+                const { label, variant } = statusMap[status] || {
+                  label: "Không xác định",
+                  variant: "outline",
+                };
+        
+                return <Badge variant={variant}>{label}</Badge>;
+              },
+            },
         {
           accessorKey: "createdAt",
           header: ({ column }) => {
@@ -116,12 +155,14 @@ const ShelterEstablishmentRequestsList = () => {
         {
                 id: "actions",
                 cell: ({ row }) => 
+                  row.original.status === "verifying" &&
           <Button className="cursor-pointer" onClick={() => {
             setSelectedShelterRequest({
-              index: row.original.index,
               _id: row.original._id,
               avatar: row.original.avatar,
+              shelterCode: row.original.shelterCode,
               name: row.original.name,
+              status: row.original.status,
               email: row.original.email,
               hotline: row.original.hotline,
               address: row.original.address,
@@ -131,7 +172,7 @@ const ShelterEstablishmentRequestsList = () => {
                 avatar: row.original.createdBy.avatar,
               },
               createdAt: row.original.createdAt,
-              updateAt: row.original.updateAt,
+              updatedAt: row.original.updatedAt,
             });
             setIsDialogOpen(true)
           }}>
@@ -230,7 +271,7 @@ const ShelterEstablishmentRequestsList = () => {
         </h4>
         <Input
           type="string"
-          placeholder="Tìm kiếm theo tên, email, hotline hoặc địa chỉ"
+          placeholder="Tìm kiếm theo tên, địa chỉ"
           className="max-w-1/3"
           onChange={(e) => searchShelter(shelterRequestData, e.target.value)}
         />

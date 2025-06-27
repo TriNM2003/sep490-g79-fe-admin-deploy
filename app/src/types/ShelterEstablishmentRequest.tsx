@@ -1,7 +1,8 @@
 export interface ShelterEstablishmentRequestTableData {
-    index: number;
     _id: string;
     avatar: string;
+    shelterCode: string;
+    status: string;
     name: string;
     email: string;
     hotline: number;
@@ -12,6 +13,6 @@ export interface ShelterEstablishmentRequestTableData {
         avatar: string
     }
     createdAt: Date;
-    updateAt: Date;
+    updatedAt: Date;
 }
   

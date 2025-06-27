@@ -59,7 +59,7 @@ const UserManagement = () => {
     useEffect(() => {
       authAxios.get(`${userAPI}/get-users-list`)
       .then(function({data}){
-        // console.log(data)
+        console.log(data)
         setUserData(data.usersList)
         setFilteredUsers(data.usersList)
       })
@@ -78,16 +78,26 @@ const UserManagement = () => {
       try {
         console.log("add user");
         console.log(fullName, email, password, roles);
-        // const response = await authAxios.post(`${coreAPI}/admin/add-user`, {
-        //   fullName,
-        //   email,
-        //   password,
-        //   roles,
-        // });
-        // console.log(response?.data.message);
+        const response = await authAxios.post(`${coreAPI}/admin/add-user`, {
+          fullName,
+          email,
+          password,
+          roles,
+        });
+        console.log(response?.data.message);
         setTimeout(() => {
           toast.success("Tạo người dùng mới thành công!")
-        }, 2000)
+          authAxios
+            .get(`${userAPI}/get-users-list`)
+            .then(function ({ data }) {
+              console.log(data);
+              setUserData(data.usersList);
+              setFilteredUsers(data.usersList);
+            })
+            .catch(function (error) {
+              console.log(error?.response?.data.message);
+            });
+        }, 1000)
       } catch (error: any) {
         console.log(error?.response.data.message);
       }
@@ -95,12 +105,17 @@ const UserManagement = () => {
 
     const handleBanUser = async (userId : string) => {
       try {
-        console.log("ban user");
-        console.log(userId);
-    
-        // const response = await authAxios.put(`${coreAPI}/admin/ban-user/${userId}`);
-        // console.log(response?.data.message);
+        await authAxios.put(`${coreAPI}/admin/ban-user/${userId}`);
         toast.success("Ban người dùng thành công!")
+        authAxios.get(`${userAPI}/get-users-list`)
+      .then(function({data}){
+        console.log(data)
+        setUserData(data.usersList)
+        setFilteredUsers(data.usersList)
+      })
+      .catch(function(error){
+        console.log(error?.response?.data.message)
+      })
       } catch (error: any) {
         console.log(error?.response.data.message);
       }
@@ -108,12 +123,18 @@ const UserManagement = () => {
 
     const handleUnbanUser = async (userId : string) => {
       try {
-        console.log("unban user");
-        console.log(userId);
-    
-        // const response = await authAxios.put(`${coreAPI}/admin/unban-user/${userId}`);
-        // console.log(response?.data.message);
+        await authAxios.put(`${coreAPI}/admin/unban-user/${userId}`);
         toast.success("Unban người dùng thành công!")
+
+        authAxios.get(`${userAPI}/get-users-list`)
+      .then(function({data}){
+        console.log(data)
+        setUserData(data.usersList)
+        setFilteredUsers(data.usersList)
+      })
+      .catch(function(error){
+        console.log(error?.response?.data.message)
+      })
       } catch (error: any) {
         console.log(error?.response.data.message);
       }
@@ -128,9 +149,18 @@ const UserManagement = () => {
           toast.error("Người dùng phải có ít nhất 1 vai trò")
         }
     
-        // const response = await authAxios.put(`${coreAPI}/admin/change-roles/${userId}`, {roles});
-        // console.log(response?.data.message);
-        // toast.success("Thay đổi vai trò người dùng thành công!")
+        const response = await authAxios.put(`${coreAPI}/admin/change-roles/${userId}`, {roles});
+        console.log(response?.data.message);
+        toast.success("Thay đổi vai trò người dùng thành công!")
+        authAxios.get(`${userAPI}/get-users-list`)
+      .then(function({data}){
+        console.log(data)
+        setUserData(data.usersList)
+        setFilteredUsers(data.usersList)
+      })
+      .catch(function(error){
+        console.log(error?.response?.data.message)
+      })
       } catch (error: any) {
         console.log(error?.response.data.message);
       }
@@ -215,6 +245,14 @@ const UserManagement = () => {
         prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]
       )
     }
+
+        if(row.original.status === "banned"){
+          return row.original.roles.map((role) => (
+              <Badge key={role} variant="default">
+                {role === "user" ? "Người dùng" : "Quản trị viên"}
+              </Badge>
+            ))
+        }
 
           return <Dialog onOpenChange={(open) => {
             if(!open){
@@ -323,6 +361,7 @@ const UserManagement = () => {
       {
         id: "actions",
         cell: ({ row }) => (
+          row.original.roles.includes("admin") ? "" :
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
@@ -335,6 +374,7 @@ const UserManagement = () => {
               sideOffset={0}
               className="w-40 rounded-md border bg-background shadow-lg p-1"
             >
+              {row.original.status !== "banned" &&
               <DropdownMenuItem
                 onClick={() => {
                   handleBanUser(row.original._id);
@@ -344,7 +384,8 @@ const UserManagement = () => {
                 
                 <Ban className="w-4 h-4"/> Ban
               </DropdownMenuItem>
-
+              }
+              {row.original.status === "banned" && 
               <DropdownMenuItem
                 onClick={() => {
                   handleUnbanUser(row.original._id);
@@ -353,6 +394,7 @@ const UserManagement = () => {
               >
                 <RotateCcwKey className="w-4 h-4"/> Unban
               </DropdownMenuItem>
+              }
             </DropdownMenuContent>
           </DropdownMenu>
         ),
