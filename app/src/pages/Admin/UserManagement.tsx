@@ -6,6 +6,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,  DropdownMenuGroup, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -14,14 +15,15 @@ import AppContext from '@/context/AppContext'
 import type { UserTableData } from '@/types/UserTableData'
 import useAuthAxios from '@/utils/authAxios';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Label } from '@radix-ui/react-dropdown-menu'
+import type { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu';
 import type { ColumnDef, ColumnFiltersState, SortingState } from '@tanstack/react-table'
-import { ArrowUpDown, Ban, ChevronsUpDown, MoreHorizontal, RotateCcwKey, Users } from 'lucide-react'
+import { ArrowUpDown, Ban, ChevronDown, ChevronsUpDown, MoreHorizontal, NotebookText, RotateCcwKey, Users } from 'lucide-react'
 import React, { useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+type Checked = DropdownMenuCheckboxItemProps["checked"]
 
 const addUserSchema = z
   .object({
@@ -40,11 +42,40 @@ const addUserSchema = z
     roles: z.array(z.string()).min(1, "Vui lòng chọn vai trò"),
   })
 
+type dialogDetail = {
+  isOpen: boolean;
+  detail: {
+    fullName: string;
+    email: string;
+    roles: [string];
+    avatar: string;
+    status: string;
+    phoneNumber: number;
+    warningCount: number;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+};
+
 const UserManagement = () => {
     const [userData, setUserData] = useState<UserTableData[]>([]);
     const [filteredUsers, setFilteredUsers] = useState<UserTableData[]>([]);
     const {userAPI, coreAPI} = useContext(AppContext);
     const authAxios = useAuthAxios();
+    const [dialogDetail, setDialogDetail] = useState<dialogDetail>({
+      isOpen: false,
+      detail: {
+        fullName: "",
+        email: "",
+        roles: [""],
+        avatar: "",
+        status: "",
+        phoneNumber: 123,
+        warningCount: 1,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    });
 
         const form = useForm<z.infer<typeof addUserSchema>>({
           resolver: zodResolver(addUserSchema),
@@ -59,7 +90,7 @@ const UserManagement = () => {
     useEffect(() => {
       authAxios.get(`${userAPI}/get-users-list`)
       .then(function({data}){
-        console.log(data)
+        // console.log(data)
         setUserData(data.usersList)
         setFilteredUsers(data.usersList)
       })
@@ -69,39 +100,48 @@ const UserManagement = () => {
     }, [])
 
     
-    const handleAddUser = async ({
-      fullName,
-      email,
-      password,
-      roles,
-    }: z.infer<typeof addUserSchema>) => {
+    // const handleAddUser = async ({
+    //   fullName,
+    //   email,
+    //   password,
+    //   roles,
+    // }: z.infer<typeof addUserSchema>) => {
+    //   try {
+    //     console.log("add user");
+    //     console.log(fullName, email, password, roles);
+    //     const response = await authAxios.post(`${coreAPI}/admin/add-user`, {
+    //       fullName,
+    //       email,
+    //       password,
+    //       roles,
+    //     });
+    //     console.log(response?.data.message);
+    //     setTimeout(() => {
+    //       toast.success("Tạo người dùng mới thành công!")
+    //       authAxios
+    //         .get(`${userAPI}/get-users-list`)
+    //         .then(function ({ data }) {
+    //           console.log(data);
+    //           setUserData(data.usersList);
+    //           setFilteredUsers(data.usersList);
+    //         })
+    //         .catch(function (error) {
+    //           console.log(error?.response?.data.message);
+    //         });
+    //     }, 1000)
+    //   } catch (error: any) {
+    //     console.log(error?.response.data.message);
+    //   }
+    // };
+
+    const handleViewAccountDetail = async (userId:string) => {
       try {
-        console.log("add user");
-        console.log(fullName, email, password, roles);
-        const response = await authAxios.post(`${coreAPI}/admin/add-user`, {
-          fullName,
-          email,
-          password,
-          roles,
-        });
-        console.log(response?.data.message);
-        setTimeout(() => {
-          toast.success("Tạo người dùng mới thành công!")
-          authAxios
-            .get(`${userAPI}/get-users-list`)
-            .then(function ({ data }) {
-              console.log(data);
-              setUserData(data.usersList);
-              setFilteredUsers(data.usersList);
-            })
-            .catch(function (error) {
-              console.log(error?.response?.data.message);
-            });
-        }, 1000)
+        console.log(userId);
+        
       } catch (error: any) {
-        console.log(error?.response.data.message);
+        console.log(error)
       }
-    };
+    }
 
     const handleBanUser = async (userId : string) => {
       try {
@@ -169,7 +209,7 @@ const UserManagement = () => {
     const columns: ColumnDef<UserTableData>[] = [
       {
         header: "STT",
-        cell: ({ row }) => <p className='text-center'>{row.index + 1}</p>
+        cell: ({ row }) => <p className="text-center">{row.index + 1}</p>,
       },
       {
         accessorKey: "avatar",
@@ -198,9 +238,9 @@ const UserManagement = () => {
             </Button>
           );
         },
-        cell: ({row}) => {
-          return <span className='px-2'>{row.original.fullName}</span>
-        }
+        cell: ({ row }) => {
+          return <span className="px-2">{row.original.fullName}</span>;
+        },
       },
       {
         accessorKey: "email",
@@ -218,9 +258,9 @@ const UserManagement = () => {
             </Button>
           );
         },
-        cell: ({row}) => {
-          return <span className='px-2'>{row.original.email}</span>
-        }
+        cell: ({ row }) => {
+          return <span className="px-2">{row.original.email}</span>;
+        },
       },
       {
         accessorKey: "roles",
@@ -239,70 +279,85 @@ const UserManagement = () => {
           );
         },
         cell: ({ row }) => {
-          const [selectedRoles, setSelectedRoles] = useState<string[]>(row.original.roles)
-          const handleToggleRole = (role: string) => {
-      setSelectedRoles(prev =>
-        prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]
-      )
-    }
-
-        if(row.original.status === "banned"){
-          return row.original.roles.map((role) => (
-              <Badge key={role} variant="default">
-                {role === "user" ? "Người dùng" : "Quản trị viên"}
-              </Badge>
-            ))
-        }
-
-          return <Dialog onOpenChange={(open) => {
-            if(!open){
-              setSelectedRoles(row.original.roles);
+          const selectedRoles = row.original.roles;
+          const [userRole, setUserRole] = React.useState<Checked>(selectedRoles.includes("user"))
+          const [adminRole, setAdminRole] = React.useState<Checked>(selectedRoles.includes("admin"))
+          
+          const dropdownButton = () => {
+            if (row.original.roles.includes("admin")) {
+              return (
+                <Button variant="destructive" className="mx-auto cursor-pointer">
+                  Quản trị <ChevronDown />
+                </Button>
+              );
+            } else if (row.original.roles.includes("user")) {
+              return (
+                <Button variant="default" className="mx-auto cursor-pointer">
+                  Thông thường <ChevronDown />
+                </Button>
+              );
+            } else {
+              return (
+                <Button variant="default" className="mx-auto cursor-pointer">
+                  Vai trò không hợp lệ <ChevronDown />
+                </Button>
+              );
             }
-          }}>
-        <DialogTrigger asChild>
-          <div className="flex flex-row gap-2 cursor-pointer">
-            {row.original.roles.map((role) => (
-              <Badge key={role} variant="default">
-                {role === "user" ? "Người dùng" : "Quản trị viên"}
-              </Badge>
-            ))}
-          </div>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogTitle>Thay đổi vai trò</DialogTitle>
-          <DialogDescription></DialogDescription>
-          <div className="flex flex-col gap-4">
-            <div className="space-y-2">
-              <div className='flex flex-row gap-2'>
-                <Avatar>
-                  <AvatarImage
-                    src={row.original?.avatar}
-                  ></AvatarImage>
-                </Avatar>
-                <span className="my-auto">
-                  {row.original?.fullName}
-                </span>
-              </div>
-              {["user", "admin"].map((role) => (
-                <label key={role} className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={selectedRoles.includes(role)}
-                    onCheckedChange={() => handleToggleRole(role)}
-                  />
-                  <span>{role === "user" ? "Người dùng" : "Quản trị viên"}</span>
-                </label>
-              ))}
-            </div>
-            <div className="flex justify-end flex-row gap-2">
-              <DialogClose asChild>
-                <Button variant="secondary" className='cursor-pointer'>Đóng</Button>
-              </DialogClose>
-              <Button onClick={e => handleChangeUserRole(row.original._id, selectedRoles)} className='cursor-pointer'>Thay đổi</Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-        }
+          };
+          
+
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                {dropdownButton()}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="min-w-40"
+              >
+                <DropdownMenuLabel>Chọn vai trò của tài khoản</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                    <DropdownMenuCheckboxItem
+                      className='cursor-pointer'
+                      checked={userRole}
+                      onCheckedChange={() => {
+                        let roleString : string[] = [];
+                        if(!userRole){
+                          roleString.push("user")
+                        }
+                        if(adminRole){
+                          roleString.push("admin")
+                        }
+                        // console.log(roleString);
+                        handleChangeUserRole(row.original._id, roleString);
+                        setUserRole(prev => !prev)
+                      }}
+                    >
+                      Tài khoản thông thường
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuCheckboxItem
+                      className='cursor-pointer'
+                      checked={adminRole}
+                      onCheckedChange={() => {
+                        let roleString : string[] = [];
+                        if(userRole){
+                          roleString.push("user")
+                        }
+                        if(!adminRole){
+                          roleString.push("admin")
+                        }
+                        // console.log(roleString);
+                        handleChangeUserRole(row.original._id, roleString);
+                        setAdminRole(prev => !prev)
+                      }}
+                    >
+                      Tài khoản quản trị viên
+                    </DropdownMenuCheckboxItem>
+                
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
       },
       {
         accessorKey: "status",
@@ -327,15 +382,15 @@ const UserManagement = () => {
           if (status === "active") {
             statusTiengViet = "Đã kích hoạt";
             color = "text-green-500 font-semibold uppercase";
-            return <Badge variant="default">{statusTiengViet}</Badge>
-          } else if(status === "verifying"){
+            return <Badge variant="default">{statusTiengViet}</Badge>;
+          } else if (status === "verifying") {
             statusTiengViet = "Chờ kích hoạt";
             color = "text-yellow-500 font-semibold uppercase";
-            return <Badge variant="secondary">{statusTiengViet}</Badge>
-          }else{
+            return <Badge variant="secondary">{statusTiengViet}</Badge>;
+          } else {
             statusTiengViet = "Bị cấm";
             color = "text-destructive font-semibold uppercase";
-            return <Badge variant="destructive">{statusTiengViet}</Badge>
+            return <Badge variant="destructive">{statusTiengViet}</Badge>;
           }
         },
       },
@@ -355,49 +410,74 @@ const UserManagement = () => {
             </Button>
           );
         },
-        cell: ({ row }) =>
-          <span className='px-2'>{new Date(row.original.createdAt).toLocaleDateString("vi-VN")}</span>
+        cell: ({ row }) => (
+          <span className="px-2">
+            {new Date(row.original.createdAt).toLocaleDateString("vi-VN")}
+          </span>
+        ),
       },
       {
         id: "actions",
-        cell: ({ row }) => (
-          row.original.roles.includes("admin") ? "" :
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
-                <MoreHorizontal className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent
-              align="center"
-              sideOffset={0}
-              className="w-40 rounded-md border bg-background shadow-lg p-1"
-            >
-              {row.original.status !== "banned" &&
-              <DropdownMenuItem
-                onClick={() => {
-                  handleBanUser(row.original._id);
-                }}
-                className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
+        cell: ({ row }) =>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="w-40 rounded-md border bg-background shadow-lg p-1"
               >
-                
-                <Ban className="w-4 h-4"/> Ban
-              </DropdownMenuItem>
-              }
-              {row.original.status === "banned" && 
-              <DropdownMenuItem
-                onClick={() => {
-                  handleUnbanUser(row.original._id);
-                }}
-                className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
-              >
-                <RotateCcwKey className="w-4 h-4"/> Unban
-              </DropdownMenuItem>
-              }
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ),
+                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() =>
+                    {
+                      setDialogDetail({
+                        isOpen: true,
+                        detail: {
+                          fullName: row.original.fullName,
+                          email: row.original.email,
+                          roles: row.original.roles,
+                          avatar: row.original.avatar,
+                          status: row.original.status,
+                          phoneNumber: row.original.phoneNumber,
+                          warningCount: row.original.warningCount,
+                          createdAt: row.original.createdAt,
+                          updatedAt: row.original.updatedAt
+                        },
+                      })
+                    }
+                    }
+                    className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
+                  >
+                    <NotebookText className="w-4 h-4" /> Xem thông tin chi tiết
+                  </DropdownMenuItem>
+                  
+                  {!row.original.roles.includes("admin") && row.original.status !== "banned" && (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        handleBanUser(row.original._id);
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
+                    >
+                      <Ban className="w-4 h-4" /> Ban
+                    </DropdownMenuItem>
+                  )}
+                  {!row.original.roles.includes("admin") && row.original.status === "banned" && (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        handleUnbanUser(row.original._id);
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
+                    >
+                      <RotateCcwKey className="w-4 h-4" /> Unban
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
       },
     ];
 
@@ -421,23 +501,11 @@ const UserManagement = () => {
 
 
   return (
-    <div className="flex flex-1 flex-col">
-      <Breadcrumb className="container mb-3 py-1 px-2">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/dashboard">Admin</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="#">Quản lý người dùng</BreadcrumbLink>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
+    <div className="flex flex-1 flex-col px-20 py-10">
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="col-span-12 px-5 flex flex-col gap-5">
           <h4 className="scroll-m-20 min-w-40 text-xl font-semibold tracking-tight text-center">
-            Danh sách người dùng
+            Danh sách các tài khoản
           </h4>
           <div className="flex flex-row gap-7">
             <Input
@@ -448,7 +516,7 @@ const UserManagement = () => {
                 searchUsersByFullnameOrEmail(userData, e.target.value)
               }
             />
-            <Dialog
+            {/* <Dialog
               onOpenChange={(isOpen) => {
                 if (!isOpen) {
                   form.reset(); // reset mỗi khi Dialog đóng
@@ -588,13 +656,117 @@ const UserManagement = () => {
                   </form>
                 </Form>
               </DialogContent>
-            </Dialog>
+            </Dialog> */}
           </div>
         </div>
         <div className="col-span-12 px-5">
           <DataTable columns={columns} data={filteredUsers ?? []} />
         </div>
       </div>
+
+      <Dialog open={dialogDetail.isOpen}>
+              <DialogContent className="max-w-[70vw]">
+                <DialogHeader>
+                  <DialogTitle>Chi tiết tài khoản</DialogTitle>
+                  <DialogDescription></DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-3 py-3">
+                                   <div className="flex flex-col">
+                    <p className="font-medium px-2 py-1 h-fit">Avatar</p>
+                    <p className="px-2 flex flex-row gap-2">
+                      <Avatar>
+                        <AvatarImage
+                          src={dialogDetail.detail.avatar}
+                        ></AvatarImage>
+                      </Avatar>
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium px-2 py-1">Họ và tên</p>
+                    <p className="px-2">
+                      {dialogDetail.detail !== null
+                        ? dialogDetail.detail.fullName
+                        : "No data"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium px-2 py-1">Email</p>
+                    <p className="px-2">
+                      {dialogDetail.detail !== null
+                        ? dialogDetail.detail.email
+                        : "No data"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium px-2 py-1">Số điện thoại</p>
+                    <p className="px-2">
+                      {dialogDetail.detail.phoneNumber
+                        ? dialogDetail.detail.phoneNumber
+                        : "Không có dữ liệu"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium px-2 py-1">Vai trò</p>
+                    <p className="px-2">
+                      {dialogDetail.detail !== null
+                        ? dialogDetail.detail.roles.map(role => {
+                          if(role === "admin"){
+                            return <Badge className='destructive'>Quản trị viên</Badge>
+                          }else if(role === "user"){
+                            return <Badge>Tài khoản thường</Badge>
+                          }
+                        })
+                        : "No data"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium px-2 py-1">Trạng thái</p>
+                    <p className="px-2">
+                      <a
+                        href={
+                          dialogDetail.detail !== null
+                            ? dialogDetail.detail.status
+                            : "No data"
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline"
+                      >
+                        Xem tài liệu
+                      </a>
+                    </p>
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="font-medium px-2 py-1 h-fit">Ngày tạo</p>
+                    <p className="px-2 flex flex-row gap-2">
+                      {dialogDetail.detail !== null
+                        ? new Date(dialogDetail.detail.createdAt).toLocaleDateString("vi-VN")
+                        : "No data"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium px-2 py-1">Lần cuối cập nhập</p>
+                    <p className="px-2">
+                      {dialogDetail.detail !== null
+                        ? new Date(dialogDetail.detail.updatedAt).toLocaleDateString("vi-VN")
+                        : "No data"}
+                    </p>
+                  </div>
+                </div>
+      
+                <DialogFooter>
+                  <DialogClose asChild>
+                      <Button
+                        variant="outline"
+                        className="cursor-pointer"
+                        onClick={() => setDialogDetail({...dialogDetail, isOpen: false})}
+                      >
+                        Đóng
+                      </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
     </div>
   );
 }

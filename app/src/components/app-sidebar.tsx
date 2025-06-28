@@ -53,7 +53,7 @@ const data = {
       icon: IconPaw,
     },
     {
-      title: "Quản lý người dùng",
+      title: "Quản lý tài khoản",
       url: "/admin/user",
       icon: IconUsers,
     },
