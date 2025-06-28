@@ -16,6 +16,7 @@ import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import { toast } from 'sonner';
 import { Badge } from '../ui/badge';
+import { Textarea } from '../ui/textarea';
 
 const examplePhoto = "https://images.squarespace-cdn.com/content/v1/54822a56e4b0b30bd821480c/45ed8ecf-0bb2-4e34-8fcf-624db47c43c8/Golden+Retrievers+dans+pet+care.jpeg";
 
@@ -28,6 +29,8 @@ const ShelterEstablishmentRequestsList = () => {
     const [buttonLoading, setButtonLoading] = useState<Boolean>(false);
     const authAxios = useAuthAxios();
     const {shelterAPI} = useContext(AppContext)
+    const [rejectReason, setRejectReason] = useState("");
+    const [openRejectDialog, setOpenRejectDialog] = useState(false);
     
         useEffect(() => {
           authAxios.get(`${shelterAPI}/get-shelter-requests-list`)
@@ -166,6 +169,7 @@ const ShelterEstablishmentRequestsList = () => {
               email: row.original.email,
               hotline: row.original.hotline,
               address: row.original.address,
+              aspiration: row.original.aspiration,
               shelterLicenseURL: row.original.shelterLicenseURL,
               createdBy: {
                 fullName: row.original.createdBy.fullName,
@@ -234,12 +238,13 @@ const ShelterEstablishmentRequestsList = () => {
         
       }
 
-      async function handleReject(requestId : string = "No decision"){
+      async function handleReject(requestId : string = "No decision", rejectReason: string = "No reason given"){
         try {
           setButtonLoading(true);
           await authAxios.post(`${shelterAPI}/review-shelter-request`, {
             requestId: requestId,
             decision: "reject",
+            rejectReason: rejectReason,
           });
           setTimeout(() => {
             setButtonLoading(false);
@@ -281,84 +286,94 @@ const ShelterEstablishmentRequestsList = () => {
       </div>
 
       <Dialog open={isDialogOpen}>
-        <DialogContent className="max-w-[70vw]">
+        <DialogContent className="w-full max-w-4xl !max-w-4xl">
           <DialogHeader>
             <DialogTitle>Chi tiết yêu cầu thành lập trạm cứu hộ</DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col gap-3 py-3">
-            <div>
-              <p className="font-medium px-2 py-1">Tên trạm cứu hộ</p>
-              <p className="px-2">
-                {selectedShelterRequest !== null
-                  ? selectedShelterRequest.name
-                  : "No data"}
-              </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 py-3">
+            {/* Cột trái */}
+            <div className="flex flex-col gap-3">
+              <div>
+                <p className="font-medium px-2 py-1">Tên trạm cứu hộ</p>
+                <div className="border border-input bg-muted text-muted-foreground rounded-md px-3 py-2 min-h-[38px] flex items-center">
+                  {selectedShelterRequest?.name ?? "No data"}
+                </div>
+              </div>
+
+              <div>
+                <p className="font-medium px-2 py-1">Email</p>
+                <div className="border border-input bg-muted text-muted-foreground rounded-md px-3 py-2 min-h-[38px] flex items-center">
+                  {selectedShelterRequest?.email ?? "No data"}
+                </div>
+              </div>
+
+              <div>
+                <p className="font-medium px-2 py-1">Hotline</p>
+                <div className="border border-input bg-muted text-muted-foreground rounded-md px-3 py-2 min-h-[38px] flex items-center">
+                  {selectedShelterRequest?.hotline ?? "No data"}
+                </div>
+              </div>
+
+              <div>
+                <p className="font-medium px-2 py-1">Địa chỉ</p>
+                <div className="border border-input bg-muted text-muted-foreground rounded-md px-3 py-2 min-h-[38px] flex items-center">
+                  {selectedShelterRequest?.address ?? "No data"}
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="font-medium px-2 py-1">Email</p>
-              <p className="px-2">
-                {selectedShelterRequest !== null
-                  ? selectedShelterRequest.email
-                  : "No data"}
-              </p>
-            </div>
-            <div>
-              <p className="font-medium px-2 py-1">Hotline</p>
-              <p className="px-2">
-                {selectedShelterRequest !== null
-                  ? selectedShelterRequest.hotline
-                  : "No data"}
-              </p>
-            </div>
-            <div>
-              <p className="font-medium px-2 py-1">Địa chỉ</p>
-              <p className="px-2">
-                {selectedShelterRequest !== null
-                  ? selectedShelterRequest.address
-                  : "No data"}
-              </p>
-            </div>
-            <div>
-              <p className="font-medium px-2 py-1">Giấy phép hoạt động</p>
-              <p className="px-2">
-                <a
-                  href={
-                    selectedShelterRequest !== null
-                      ? selectedShelterRequest.shelterLicenseURL
-                      : "No data"
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 underline"
-                >
-                  Xem tài liệu
-                </a>
-              </p>
-            </div>
-            <div className="flex flex-col">
-              <p className="font-medium px-2 py-1 h-fit">Tạo bởi</p>
-              <p className="px-2 flex flex-row gap-2">
-                <Avatar>
-                  <AvatarImage
-                    src={selectedShelterRequest?.createdBy.avatar}
-                  ></AvatarImage>
-                </Avatar>
-                <span className="my-auto">
-                  {selectedShelterRequest?.createdBy.fullName}
-                </span>
-              </p>
-            </div>
-            <div>
-              <p className="font-medium px-2 py-1">Ngày tạo</p>
-              <p className="px-2">
-                {new Date(
-                  selectedShelterRequest !== null
-                    ? selectedShelterRequest.createdAt
-                    : "No data"
-                ).toLocaleString()}
-              </p>
+
+            {/* Cột phải */}
+            <div className="flex flex-col gap-3">
+              <div>
+                <p className="font-medium px-2 py-1">Giấy phép hoạt động</p>
+                <div className="border border-input bg-muted text-muted-foreground rounded-md px-3 py-2 min-h-[38px] flex items-center">
+                  {selectedShelterRequest?.shelterLicenseURL ? (
+                    <a
+                      href={selectedShelterRequest.shelterLicenseURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      Xem tài liệu
+                    </a>
+                  ) : (
+                    "No data"
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <p className="font-medium px-2 py-1">Tạo bởi</p>
+                <div className="px-3 py-2 min-h-[38px] flex items-center gap-2">
+                  <Avatar>
+                    <AvatarImage
+                      src={selectedShelterRequest?.createdBy?.avatar}
+                    />
+                  </Avatar>
+                  <span>
+                    {selectedShelterRequest?.createdBy?.fullName ?? "No data"}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <p className="font-medium px-2 py-1">Ngày tạo</p>
+                <div className="border border-input bg-muted text-muted-foreground rounded-md px-3 py-2 min-h-[38px] flex items-center">
+                  {selectedShelterRequest?.createdAt
+                    ? new Date(
+                        selectedShelterRequest.createdAt
+                      ).toLocaleString()
+                    : "No data"}
+                </div>
+              </div>
+              <div>
+                <p className="font-medium px-2 py-1">Nguyện vọng thành lập</p>
+                <div className="border border-input bg-muted text-muted-foreground rounded-md px-3 py-2 whitespace-pre-line">
+                  {selectedShelterRequest?.aspiration ?? "No data"}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -385,13 +400,59 @@ const ShelterEstablishmentRequestsList = () => {
                 Vui lòng chờ
               </Button>
             ) : (
-              <Button
-                variant="destructive"
-                className="cursor-pointer"
-                onClick={() => handleReject(selectedShelterRequest?._id)}
+              <Dialog
+                open={openRejectDialog}
+                onOpenChange={setOpenRejectDialog}
               >
-                Từ chối
-              </Button>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    className="cursor-pointer"
+                    onClick={() => setOpenRejectDialog(true)}
+                  >
+                    Từ chối
+                  </Button>
+                </DialogTrigger>
+
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Lý do từ chối</DialogTitle>
+                  </DialogHeader>
+                  <DialogDescription></DialogDescription>
+
+                  <Textarea
+                    placeholder="Nhập lý do từ chối yêu cầu này..."
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    className="min-h-[100px]"
+                  />
+
+                  <DialogFooter className="pt-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setRejectReason("");
+                        setOpenRejectDialog(false);
+                      }}
+                      className='cursor-pointer'
+                    >
+                      Hủy
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        handleReject(selectedShelterRequest?._id, rejectReason);
+                        setRejectReason("");
+                        setOpenRejectDialog(false);
+                      }}
+                      disabled={!rejectReason.trim()}
+                      className='cursor-pointer'
+                    >
+                      Xác nhận từ chối
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             )}
             {buttonLoading ? (
               <Button disabled>
