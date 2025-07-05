@@ -64,6 +64,9 @@ const ShelterEstablishmentRequestsList = () => {
               </Button>
             );
           },
+          cell: ({row}) => {
+            return <p className='truncate whitespace-nowrap overflow-hidden max-w-[130px]'>{row.original.name}</p>
+          }
         },
         {
           accessorKey: "address",
@@ -79,6 +82,9 @@ const ShelterEstablishmentRequestsList = () => {
               </Button>
             );
           },
+          cell: ({row}) => {
+            return <p className='truncate whitespace-nowrap overflow-hidden max-w-[130px]'>{row.original.address}</p>
+          }
         },
         {
           accessorKey: "createdBy",
@@ -129,6 +135,7 @@ const ShelterEstablishmentRequestsList = () => {
                   banned: { label: "Bị cấm", variant: "destructive" },
                   rejected: { label: "Từ chối", variant: "destructive" },
                   verifying: { label: "Đang chờ duyệt", variant: "secondary" },
+                  cancelled: { label: "Hủy bỏ", variant: "destructive" },
                 };
         
                 const { label, variant } = statusMap[status] || {

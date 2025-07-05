@@ -60,7 +60,7 @@ type dialogDetail = {
 const UserManagement = () => {
     const [userData, setUserData] = useState<UserTableData[]>([]);
     const [filteredUsers, setFilteredUsers] = useState<UserTableData[]>([]);
-    const {userAPI, coreAPI} = useContext(AppContext);
+    const {userAPI} = useContext(AppContext);
     const authAxios = useAuthAxios();
     const [dialogDetail, setDialogDetail] = useState<dialogDetail>({
       isOpen: false,
@@ -145,7 +145,7 @@ const UserManagement = () => {
 
     const handleBanUser = async (userId : string) => {
       try {
-        await authAxios.put(`${coreAPI}/admin/ban-user/${userId}`);
+        await authAxios.put(`${userAPI}/ban-user/${userId}`);
         toast.success("Ban người dùng thành công!")
         authAxios.get(`${userAPI}/get-users-list`)
       .then(function({data}){
@@ -163,7 +163,7 @@ const UserManagement = () => {
 
     const handleUnbanUser = async (userId : string) => {
       try {
-        await authAxios.put(`${coreAPI}/admin/unban-user/${userId}`);
+        await authAxios.put(`${userAPI}/unban-user/${userId}`);
         toast.success("Unban người dùng thành công!")
 
         authAxios.get(`${userAPI}/get-users-list`)
@@ -182,19 +182,20 @@ const UserManagement = () => {
 
     const handleChangeUserRole = async (userId : string, roles: string[]) => {
       try {
-        console.log("change user role");
-        console.log(userId, roles);
+        // console.log("change user role");
+        // console.log(userId, roles);
 
         if(roles.length === 0){
           toast.error("Người dùng phải có ít nhất 1 vai trò")
+          return;
         }
     
-        const response = await authAxios.put(`${coreAPI}/admin/change-roles/${userId}`, {roles});
-        console.log(response?.data.message);
+        const response = await authAxios.put(`${userAPI}/change-roles/${userId}`, {roles});
+        // console.log(response?.data.message);
         toast.success("Thay đổi vai trò người dùng thành công!")
         authAxios.get(`${userAPI}/get-users-list`)
       .then(function({data}){
-        console.log(data)
+        // console.log(data)
         setUserData(data.usersList)
         setFilteredUsers(data.usersList)
       })
@@ -279,18 +280,35 @@ const UserManagement = () => {
           );
         },
         cell: ({ row }) => {
-          const selectedRoles = row.original.roles;
-          const [userRole, setUserRole] = React.useState<Checked>(selectedRoles.includes("user"))
-          const [adminRole, setAdminRole] = React.useState<Checked>(selectedRoles.includes("admin"))
-          
+          const currentRoles: string[] = [...row.original.roles];
+
+          const isUser = currentRoles.includes("user");
+          const isAdmin = currentRoles.includes("admin");
+
+          const toggleRole = async (role: string) => {
+            const updatedRoles = [...currentRoles];
+            const index = updatedRoles.indexOf(role);
+
+            if (index === -1) {
+              updatedRoles.push(role);
+            } else {
+              updatedRoles.splice(index, 1);
+            }
+
+            await handleChangeUserRole(row.original._id, updatedRoles);
+          };
+
           const dropdownButton = () => {
-            if (row.original.roles.includes("admin")) {
+            if (isAdmin) {
               return (
-                <Button variant="destructive" className="mx-auto cursor-pointer">
+                <Button
+                  variant="destructive"
+                  className="mx-auto cursor-pointer"
+                >
                   Quản trị <ChevronDown />
                 </Button>
               );
-            } else if (row.original.roles.includes("user")) {
+            } else if (isUser) {
               return (
                 <Button variant="default" className="mx-auto cursor-pointer">
                   Thông thường <ChevronDown />
@@ -304,56 +322,32 @@ const UserManagement = () => {
               );
             }
           };
-          
 
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 {dropdownButton()}
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-40"
-              >
-                <DropdownMenuLabel>Chọn vai trò của tài khoản</DropdownMenuLabel>
+              <DropdownMenuContent className="min-w-40">
+                <DropdownMenuLabel>
+                  Chọn vai trò của tài khoản
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                    <DropdownMenuCheckboxItem
-                      className='cursor-pointer'
-                      checked={userRole}
-                      onCheckedChange={() => {
-                        let roleString : string[] = [];
-                        if(!userRole){
-                          roleString.push("user")
-                        }
-                        if(adminRole){
-                          roleString.push("admin")
-                        }
-                        // console.log(roleString);
-                        handleChangeUserRole(row.original._id, roleString);
-                        setUserRole(prev => !prev)
-                      }}
-                    >
-                      Tài khoản thông thường
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuCheckboxItem
-                      className='cursor-pointer'
-                      checked={adminRole}
-                      onCheckedChange={() => {
-                        let roleString : string[] = [];
-                        if(userRole){
-                          roleString.push("user")
-                        }
-                        if(!adminRole){
-                          roleString.push("admin")
-                        }
-                        // console.log(roleString);
-                        handleChangeUserRole(row.original._id, roleString);
-                        setAdminRole(prev => !prev)
-                      }}
-                    >
-                      Tài khoản quản trị viên
-                    </DropdownMenuCheckboxItem>
-                
+                <DropdownMenuCheckboxItem
+                  className="cursor-pointer"
+                  checked={isUser}
+                  onCheckedChange={() => toggleRole("user")}
+                >
+                  Tài khoản thông thường
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuCheckboxItem
+                  className="cursor-pointer"
+                  checked={isAdmin}
+                  onCheckedChange={() => toggleRole("admin")}
+                >
+                  Tài khoản quản trị viên
+                </DropdownMenuCheckboxItem>
               </DropdownMenuContent>
             </DropdownMenu>
           );
@@ -418,44 +412,43 @@ const UserManagement = () => {
       },
       {
         id: "actions",
-        cell: ({ row }) =>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="w-40 rounded-md border bg-background shadow-lg p-1"
-              >
-                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    onClick={() =>
-                    {
-                      setDialogDetail({
-                        isOpen: true,
-                        detail: {
-                          fullName: row.original.fullName,
-                          email: row.original.email,
-                          roles: row.original.roles,
-                          avatar: row.original.avatar,
-                          status: row.original.status,
-                          phoneNumber: row.original.phoneNumber,
-                          warningCount: row.original.warningCount,
-                          createdAt: row.original.createdAt,
-                          updatedAt: row.original.updatedAt
-                        },
-                      })
-                    }
-                    }
-                    className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
-                  >
-                    <NotebookText className="w-4 h-4" /> Xem thông tin chi tiết
-                  </DropdownMenuItem>
-                  
-                  {!row.original.roles.includes("admin") && row.original.status !== "banned" && (
+        cell: ({ row }) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+                <MoreHorizontal className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              className="w-40 rounded-md border bg-background shadow-lg p-1"
+            >
+              <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDialogDetail({
+                      isOpen: true,
+                      detail: {
+                        fullName: row.original.fullName,
+                        email: row.original.email,
+                        roles: row.original.roles,
+                        avatar: row.original.avatar,
+                        status: row.original.status,
+                        phoneNumber: row.original.phoneNumber,
+                        warningCount: row.original.warningCount,
+                        createdAt: row.original.createdAt,
+                        updatedAt: row.original.updatedAt,
+                      },
+                    });
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
+                >
+                  <NotebookText className="w-4 h-4" /> Xem thông tin chi tiết
+                </DropdownMenuItem>
+
+                {!row.original.roles.includes("admin") &&
+                  row.original.status !== "banned" && (
                     <DropdownMenuItem
                       onClick={() => {
                         handleBanUser(row.original._id);
@@ -465,7 +458,8 @@ const UserManagement = () => {
                       <Ban className="w-4 h-4" /> Ban
                     </DropdownMenuItem>
                   )}
-                  {!row.original.roles.includes("admin") && row.original.status === "banned" && (
+                {!row.original.roles.includes("admin") &&
+                  row.original.status === "banned" && (
                     <DropdownMenuItem
                       onClick={() => {
                         handleUnbanUser(row.original._id);
@@ -475,9 +469,10 @@ const UserManagement = () => {
                       <RotateCcwKey className="w-4 h-4" /> Unban
                     </DropdownMenuItem>
                   )}
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
       },
     ];
 

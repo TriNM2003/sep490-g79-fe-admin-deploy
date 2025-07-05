@@ -55,13 +55,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setUser(null);
       localStorage.clear();
     })
-    .catch(err => toast.error("Lỗi thoát đăng nhập!"))
+    .catch(err => {
+      toast.error("Lỗi thoát đăng nhập!")
+      setUser(null);
+      localStorage.removeItem("accessToken");
+    })
   };
 
   // Check trạng thái login và access token mỗi khi chuyển trang
   useEffect(() => {
       authAxios
-        .get("http://localhost:9999/users/user-profile")
+        .get(`${coreAPI}/users/get-user`)
           .then((res) => {
             setUserProfile(res?.data);
             setUser(res?.data);

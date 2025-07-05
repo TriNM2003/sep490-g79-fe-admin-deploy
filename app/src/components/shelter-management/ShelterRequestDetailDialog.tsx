@@ -40,7 +40,7 @@ const ShelterDetailDialog = ({ shelter } : {shelter: ShelterEstablishmentRequest
                 ? "default"
                 : shelter.status === "verifying"
                 ? "outline"
-                : ["rejected", "banned"].includes(shelter.status)
+                : ["rejected", "banned", "cancelled"].includes(shelter.status)
                 ? "destructive"
                 : "outline" // fallback
             }
@@ -53,6 +53,8 @@ const ShelterDetailDialog = ({ shelter } : {shelter: ShelterEstablishmentRequest
               ? "Bị cấm"
               : shelter.status === "rejected"
               ? "Từ chối"
+              : shelter.status === "cancelled"
+              ? "Hủy bỏ"
               : "Không xác định"}
           </Badge>
         </div>
