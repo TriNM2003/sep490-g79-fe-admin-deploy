@@ -60,7 +60,7 @@ const chartConfig = {
   mouse: { label: "Chuột", color: "var(--chart-3)" },
 } satisfies ChartConfig
 
-export function ChartAreaInteractive() {
+export default function ChartAreaInteractive() {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState("1y")
 
