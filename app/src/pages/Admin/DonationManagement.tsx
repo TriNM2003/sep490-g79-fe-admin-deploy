@@ -9,9 +9,10 @@ import type { DonationTableData } from '@/types/DonationTableData';
 import type { User } from '@/types/User';
 import useAuthAxios from '@/utils/authAxios';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal, NotebookText } from 'lucide-react';
+import { ArrowUpDown, Crown, MoreHorizontal, NotebookText } from 'lucide-react';
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 
+const rankColors = ["text-yellow-400", "text-sky-400", "text-green-400"];
 const mockDonations: DonationTableData[] = [
   {
     _id: "donation1",
@@ -22,7 +23,7 @@ const mockDonations: DonationTableData[] = [
       fullName: "Nguyễn Văn A",
       email: "vana@example.com",
       role: "user",
-      avatar: "https://easydrawingguides.com/wp-content/uploads/2024/05/how-to-draw-zoro-from-one-piece-featured-image-1200.png",
+      avatar: "https://randomuser.me/api/portraits/men/75.jpg",
       isActive: true,
       phoneNumber: "0901234567",
       createdAt: "2024-10-10T10:00:00Z",
@@ -41,7 +42,7 @@ const mockDonations: DonationTableData[] = [
       fullName: "Nguyễn Văn A",
       email: "vana@example.com",
       role: "user",
-      avatar: "https://easydrawingguides.com/wp-content/uploads/2024/05/how-to-draw-zoro-from-one-piece-featured-image-1200.png",
+      avatar: "https://randomuser.me/api/portraits/men/75.jpg",
       isActive: true,
       phoneNumber: "0901234567",
       createdAt: "2024-10-10T10:00:00Z",
@@ -60,7 +61,7 @@ const mockDonations: DonationTableData[] = [
       fullName: "Trần Thị B",
       email: "tranb@example.com",
       role: "user",
-      avatar: "https://example.com/avatar/u2.jpg",
+      avatar: "https://randomuser.me/api/portraits/women/65.jpg",
       isActive: true,
       phoneNumber: "0907654321",
       createdAt: "2024-11-15T12:00:00Z",
@@ -79,7 +80,7 @@ const mockDonations: DonationTableData[] = [
       fullName: "Lê Văn C",
       email: "levanc@example.com",
       role: "admin",
-      avatar: "https://example.com/avatar/u3.jpg",
+      avatar: "https://randomuser.me/api/portraits/men/48.jpg",
     },
     amount: 750000,
     message: "Ủng hộ trạm cứu hộ quận 3",
@@ -95,7 +96,7 @@ const mockDonations: DonationTableData[] = [
       fullName: "Phạm D",
       email: "guest@example.com",
       role: "guest",
-      avatar: "https://example.com/avatar/u4.jpg",
+      avatar: "https://randomuser.me/api/portraits/men/33.jpg",
       isActive: false,
     },
     amount: 200000,
@@ -105,16 +106,6 @@ const mockDonations: DonationTableData[] = [
   },
   {
     _id: "donation5",
-    // donor: {
-    //   id: "u5",
-    //   userId: "USR005",
-    //   username: "animalhero",
-    //   fullName: "Hoàng Thị E",
-    //   email: "hoange@example.com",
-    //   role: "moderator",
-    //   avatar: "https://example.com/avatar/u5.jpg",
-    //   createdAt: "2025-01-01T00:00:00Z",
-    // },
     amount: 300000,
     message: "Tiếp tục sứ mệnh tuyệt vời!",
     createdAt: new Date("2025-07-04T16:20:00Z"),
@@ -122,22 +113,13 @@ const mockDonations: DonationTableData[] = [
   },
   {
     _id: "donation6",
-    // donor: {
-    //   id: "u5",
-    //   userId: "USR005",
-    //   username: "animalhero",
-    //   fullName: "Hoàng Thị E",
-    //   email: "hoange@example.com",
-    //   role: "moderator",
-    //   avatar: "https://example.com/avatar/u5.jpg",
-    //   createdAt: "2025-01-01T00:00:00Z",
-    // },
     amount: 345230,
     message: "Tiếp tục sứ mệnh tuyệt vời x2!",
     createdAt: new Date("2025-07-04T16:20:00Z"),
     updatedAt: new Date("2025-07-04T16:20:00Z"),
   },
 ];
+
 
 type dialogDetail = {
   isOpen: boolean;
@@ -232,6 +214,13 @@ const DonationManagement = () => {
       });
       const donationSummary: DonationSummary[] =
         Object.values(groupedDonations);
+
+
+        const top3Donors = useMemo(() => {
+          return [...donationSummary]
+            .sort((a, b) => b.amount - a.amount)
+            .slice(0, 3);
+        }, [donationSummary]);
 
 
       // useEffect(() => {
@@ -502,21 +491,93 @@ const DonationManagement = () => {
           <h4 className="scroll-m-20 min-w-40 text-xl font-semibold tracking-tight text-center">
             Danh sách quyên góp vào hệ thống PawShelter
           </h4>
-          <Badge className='mx-auto my-2 px-7 py-4 text-xl'>Tổng số tiền được quyên góp: 
-            <span className='ms-2'>{totalDonationAmount.toLocaleString("vi-VN", {style: "currency",currency: "VND",})}</span>
-            </Badge>
         </div>
-        <div className="col-span-12 px-5">
-          <DataTable columns={columns} data={mockDonations ?? []} />
+        <div className="relative flex justify-center items-end py-8">
+          {/* Top 2 - Left */}
+          {top3Donors[1] && (
+            <div className="absolute bottom-0 left-1/3 transform -translate-x-1/2 flex flex-col items-center scale-90">
+              <Avatar className="w-20 h-20 ring-4 ring-sky-400">
+                <AvatarImage
+                  src={
+                    top3Donors[1].donor?.avatar ||
+                    "https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-avatar-vector-isolated-on-white-background-png-image_1694546.jpg"
+                  }
+                />
+              </Avatar>
+              <p className="mt-1 text-lg font-semibold">2</p>
+              <p className="font-bold">
+                {top3Donors[1].donor?.fullName || "Khách"}
+              </p>
+              <p className="text-sky-400 font-semibold">
+                {top3Donors[1].amount.toLocaleString("vi-VN")} VND
+              </p>
+            </div>
+          )}
+
+          {/* Top 1 - Center */}
+          {top3Donors[0] && (
+            <div className="flex flex-col items-center z-10">
+              <div className="relative">
+                <Avatar className="w-24 h-24 ring-4 ring-yellow-400">
+                  <AvatarImage
+                    src={
+                      top3Donors[0].donor?.avatar ||
+                      "https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-avatar-vector-isolated-on-white-background-png-image_1694546.jpg"
+                    }
+                  />
+                </Avatar>
+                <Crown className="absolute -top-6 left-1/2 -translate-x-1/2 text-yellow-400 w-8 h-8" />
+              </div>
+              <p className="mt-2 text-xl font-semibold">1</p>
+              <p className="font-bold">
+                {top3Donors[0].donor?.fullName || "Khách"}
+              </p>
+              <p className="text-yellow-400 font-semibold">
+                {top3Donors[0].amount.toLocaleString("vi-VN")} VND
+              </p>
+            </div>
+          )}
+
+          {/* Top 3 - Right */}
+          {top3Donors[2] && (
+            <div className="absolute bottom-0 right-1/3 transform translate-x-1/2 flex flex-col items-center scale-90">
+              <Avatar className="w-20 h-20 ring-4 ring-green-400">
+                <AvatarImage
+                  src={
+                    top3Donors[2].donor?.avatar ||
+                    "https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-avatar-vector-isolated-on-white-background-png-image_1694546.jpg"
+                  }
+                />
+              </Avatar>
+              <p className="mt-1 text-lg font-semibold">3</p>
+              <p className=" font-bold">
+                {top3Donors[2].donor?.fullName || "Khách"}
+              </p>
+              <p className="text-green-400 font-semibold">
+                {top3Donors[2].amount.toLocaleString("vi-VN")} VND
+              </p>
+            </div>
+          )}
         </div>
-        <div className="col-span-12 px-5 flex flex-col gap-5">
-          <h4 className="scroll-m-20 min-w-40 text-xl font-semibold tracking-tight text-center">
-            Danh sách tổng cộng quyên góp theo từng người
-          </h4>
-        </div>
-        <div className="col-span-12 px-5">
+
+        <div className="col-span-12 px-5 mt-3">
+          <Badge className="mx-auto text-md mb-1">
+            Tổng quyên góp:
+            <span className="ms-2">
+              {totalDonationAmount.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              })}
+            </span>
+          </Badge>
           <DataTable columns={TopDonatorColumns} data={donationSummary ?? []} />
         </div>
+      </div>
+      <div className="col-span-12 px-5 flex flex-col gap-5">
+        <h4 className="scroll-m-20 min-w-40 text-xl font-semibold tracking-tight text-center">
+          Quyên góp theo từng giao dịch
+        </h4>
+        <DataTable columns={columns} data={mockDonations ?? []} />
       </div>
 
       <Dialog
@@ -647,20 +708,26 @@ const DonationManagement = () => {
                 <div>
                   <p className="font-medium mb-1">Ảnh đại diện</p>
                   <Avatar className="w-16 h-16">
-                    <AvatarImage src={summaryDialogDetail.detail.donor.avatar} />
+                    <AvatarImage
+                      src={summaryDialogDetail.detail.donor.avatar}
+                    />
                   </Avatar>
                 </div>
 
                 <div>
                   <p className="font-medium mb-1">Họ và tên</p>
                   <p>
-                    {summaryDialogDetail.detail.donor.fullName || "Không có dữ liệu"}
+                    {summaryDialogDetail.detail.donor.fullName ||
+                      "Không có dữ liệu"}
                   </p>
                 </div>
 
                 <div>
                   <p className="font-medium mb-1">Email</p>
-                  <p>{summaryDialogDetail.detail.donor.email || "Không có dữ liệu"}</p>
+                  <p>
+                    {summaryDialogDetail.detail.donor.email ||
+                      "Không có dữ liệu"}
+                  </p>
                 </div>
 
                 <div>
@@ -671,22 +738,22 @@ const DonationManagement = () => {
                   </p>
                 </div>
               </>
-            ) : <div>
-                  <p className="font-medium mb-1">Người ủng hộ</p>
-                  <p>
-                    Khách (ẩn danh)
-                  </p>
-                </div>}
-
+            ) : (
               <div>
-                <p className="font-medium mb-1">Tổng số tiền ủng hộ</p>
-                <p className="text-green-600 font-semibold">
-                  {summaryDialogDetail.detail?.amount?.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  }) || "0 VND"}
-                </p>
+                <p className="font-medium mb-1">Người ủng hộ</p>
+                <p>Khách (ẩn danh)</p>
               </div>
+            )}
+
+            <div>
+              <p className="font-medium mb-1">Tổng số tiền ủng hộ</p>
+              <p className="text-green-600 font-semibold">
+                {summaryDialogDetail.detail?.amount?.toLocaleString("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }) || "0 VND"}
+              </p>
+            </div>
           </div>
 
           <DialogFooter>
@@ -695,7 +762,10 @@ const DonationManagement = () => {
                 variant="outline"
                 className="cursor-pointer"
                 onClick={() =>
-                  setSummaryDialogDetail({ ...summaryDialogDetail, isOpen: false })
+                  setSummaryDialogDetail({
+                    ...summaryDialogDetail,
+                    isOpen: false,
+                  })
                 }
               >
                 Đóng

@@ -13,8 +13,8 @@ export interface ReportUser {
     lng: number;
   };
   warningCount?: number;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // ---------- Post ----------
@@ -25,8 +25,8 @@ export interface ReportPost {
   privacy: string[];
   createdBy: ReportUser;
   status: string;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // ---------- Blog ----------
@@ -44,8 +44,8 @@ export interface ReportBlog {
     address?: string;
     warningCount?: number;
   };
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export default interface ReportTableData {
@@ -59,6 +59,6 @@ export default interface ReportTableData {
   reason: string;
   photos?: string[];
   status: string;
-  createdAt: string; 
-  updatedAt: string;
+  createdAt: Date; 
+  updatedAt: Date;
 }

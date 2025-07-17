@@ -6,121 +6,39 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppContext from '@/context/AppContext';
 import type { DonationTableData } from '@/types/DonationTableData';
+import type { ReportPost, ReportUser } from '@/types/ReportTableData';
 import type ReportTableData from '@/types/ReportTableData';
 import type { User } from '@/types/User';
 import useAuthAxios from '@/utils/authAxios';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal, NotebookText } from 'lucide-react';
+import { ArrowUpDown, Loader2Icon, MoreHorizontal, NotebookText } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react'
+import Lightbox from "yet-another-react-lightbox";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+
 
 export const mockReportData: ReportTableData[] = [
-  {
-    _id: "rpt001",
-    reportType: "user",
-    user: {
-      _id: "user001",
-      fullName: "Nguyễn Văn A",
-      email: "vana@example.com",
-      avatar: "https://example.com/avatar1.jpg",
-      phoneNumber: "0901234567",
-      bio: "Tôi yêu động vật",
-      dob: "2000-05-20T00:00:00.000Z",
-      address: "Hà Nội",
-      location: { lat: 21.0278, lng: 105.8342 },
-      createdAt: "2024-12-01T10:00:00.000Z",
-      updatedAt: "2025-01-01T10:00:00.000Z",
-      background: "https://example.com/bg1.jpg"
-    },
-    reportedBy: {
-      _id: "user002",
-      fullName: "Trần Thị B",
-      email: "tranb@example.com",
-      avatar: "https://example.com/avatar2.jpg",
-    },
-    reviewedBy: {
-      _id: "admin001",
-      fullName: "Admin Kiểm Duyệt",
-      email: "admin@example.com",
-      avatar: "https://example.com/admin.jpg"
-    },
-    reason: "Tài khoản có hành vi spam.",
-    photos: [],
-    status: "approved",
-    createdAt: "2025-07-01T08:00:00.000Z",
-    updatedAt: "2025-07-01T09:00:00.000Z"
-  },
-  {
-    _id: "rpt002",
-    reportType: "post",
-    post: {
-      _id: "post123",
-      title: "Cần cho mèo ăn",
-      photos: ["https://example.com/post1.jpg"],
-      privacy: ["public"],
-      createdBy: {
-        _id: "user003",
-        fullName: "Lê Văn C",
-        email: "lec@example.com",
-        avatar: "https://example.com/avatar3.jpg"
-      },
-      status: "active",
-      createdAt: "2025-06-28T14:00:00.000Z"
-    },
-    reportedBy: {
-      _id: "user004",
-      fullName: "Nguyễn Thị D",
-      email: "nguyend@example.com",
-      avatar: "https://example.com/avatar4.jpg"
-    },
-    reason: "Bài viết chứa nội dung không phù hợp.",
-    photos: ["https://example.com/evidence1.jpg"],
-    status: "pending",
-    createdAt: "2025-07-03T12:30:00.000Z",
-    updatedAt: "2025-07-03T12:30:00.000Z"
-  },
-  {
-    _id: "rpt003",
-    reportType: "blog",
-    blog: {
-      _id: "blog999",
-      title: "Cách chăm sóc chó con mùa hè",
-      description: "Hướng dẫn cơ bản về chăm sóc thú nuôi.",
-      content: "Chi tiết từng bước cách chăm sóc...",
-      thumbnail_url: "https://example.com/blogthumb.jpg",
-      status: "published",
-      shelter: {
-        _id: "shelter01",
-        name: "Paws & Claws Rescue Center",
-        avatar: "https://example.com/shelter.jpg",
-        address: "123 Đường Yêu Thương, Quận 1, TP.HCM"
-      },
-      createdAt: "2025-06-20T10:00:00.000Z"
-    },
-    reportedBy: {
-      _id: "user005",
-      fullName: "Phạm Văn E",
-      email: "phame@example.com",
-      avatar: "https://example.com/avatar5.jpg"
-    },
-    reason: "Thông tin sai lệch.",
-    photos: [],
-    status: "rejected",
-    createdAt: "2025-07-02T11:00:00.000Z",
-    updatedAt: "2025-07-02T15:00:00.000Z"
-  },
   {
     _id: "rpt004",
     reportType: "post",
     post: {
       _id: "post567",
-      title: "Bán mèo giá rẻ",
-      photos: ["https://example.com/post2.jpg"],
+      title: `Tên lửa siêu vượt âm Fattah là vũ khí có tốc độ tối thiểu gấp 5 lần âm thanh (Mach 5), tương đương hơn 6.200 km/h. IRGC ra mắt tên lửa Fattah hồi tháng 6/2023, mô tả đây là "bước nhảy vọt lớn trong lĩnh vực tên lửa" của nước này. Giới chức Iran cho hay Fattah có tầm bắn 1.400 km, tốc độ tối đa khoảng 15.000 km/h, nhanh gấp 14 lần âm thanh, và có khả năng "xuyên thủng mọi lá chắn phòng thủ".
+
+Tuy nhiên, có nhiều đánh giá liên quan đến tên lửa này. Bộ Quốc phòng Israel từng nhận định Fattah là t
+Tên lửa siêu vượt âm Fattah là vũ khí có tốc độ tối thiểu gấp 5 lần âm thanh (Mach 5), tương đương hơn 6.200 km/h. IRGC ra mắt tên lửa Fattah hồi tháng 6/2023, mô tả đây là "bước nhảy vọt lớn trong lĩnh vực tên lửa" của nước này. Giới chức Iran cho hay Fattah có tầm bắn 1.400 km, tốc độ tối đa khoảng 15.000 km/h, nhanh gấp 14 lần âm thanh, và có khả năng "xuyên thủng mọi lá chắn phòng thủ".
+
+Tuy nhiên, có nhiều đánh giá liên quan đến tên lửa này. Bộ Quốc phòng Israel từng nhận định Fattah là t
+Tên lửa siêu vượt âm Fattah là vũ khí có tốc độ tối thiểu gấp 5 lần âm thanh (Mach 5), tương đương hơn 6.200 km/h. IRGC ra mắt tên lửa Fattah hồi tháng 6/2023, mô tả đây là "bước nhảy vọt lớn trong lĩnh vực tên lửa" của nước này. Giới chức Iran cho hay Fattah có tầm bắn 1.400 km, tốc độ tối đa khoảng 15.000 km/h, nhanh gấp 14 lần âm thanh, và có khả năng "xuyên thủng mọi lá chắn phòng thủ".
+
+Tuy nhiên, có nhiều đánh giá liên quan đến tên lửa này. Bộ Quốc phòng Israel từng nhận định Fattah là t`,
+      photos: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDCsqRYLAFDdL4Ix_AHai7kNVyoPV9Ssv1xg&s", "https://d2zp5xs5cp8zlg.cloudfront.net/image-79322-800.jpg"],
       privacy: ["public"],
       createdBy: {
         _id: "user006",
         fullName: "Lý Thị F",
         email: "lyf@example.com",
-        avatar: "https://example.com/avatar6.jpg"
+        avatar: "https://thumbs.dreamstime.com/b/d-icon-avatar-cute-smiling-woman-cartoon-hipster-character-people-close-up-portrait-isolated-transparent-png-background-345284600.jpg"
       },
       status: "active"
     },
@@ -128,86 +46,91 @@ export const mockReportData: ReportTableData[] = [
       _id: "user007",
       fullName: "Đặng Văn G",
       email: "dangvg@example.com",
-      avatar: "https://example.com/avatar7.jpg"
+      avatar: "https://thumbs.dreamstime.com/b/d-icon-avatar-cute-smiling-woman-cartoon-hipster-character-people-close-up-portrait-isolated-transparent-png-background-345284600.jpg"
     },
     reason: "Nội dung nghi ngờ lừa đảo.",
-    photos: ["https://example.com/evidence2.jpg"],
+    photos: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROQLTuxZA10DcnEpMqqA0P1zjgQJgYNE9Tkw&s", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_GWXCDhEZj3Czmg297R6BezEqmvnTnFgl_A&s"],
     status: "pending",
-    createdAt: "2025-07-04T09:00:00.000Z",
-    updatedAt: "2025-07-04T09:00:00.000Z"
+    createdAt: new Date("2025-07-04T09:00:00.000Z"),
+    updatedAt: new Date("2025-07-04T09:00:00.000Z")
   },
-  {
-    _id: "rpt005",
-    reportType: "blog",
-    blog: {
-      _id: "blog456",
-      title: "Kinh nghiệm nuôi mèo con",
-      content: "Chi tiết từng giai đoạn phát triển của mèo.",
-      thumbnail_url: "https://example.com/blog2.jpg",
-      status: "moderating",
-      shelter: {
-        _id: "shelter02",
-        name: "Little Paws Sanctuary",
-        avatar: "https://example.com/shelter2.jpg",
-        address: "456 Đường Ấm Áp, Quận 2, TP.HCM"
-      }
-    },
-    reportedBy: {
-      _id: "user008",
-      fullName: "Trương Mỹ H",
-      email: "truongmh@example.com",
-      avatar: "https://example.com/avatar8.jpg"
-    },
-    reviewedBy: {
-      _id: "admin002",
-      fullName: "Mod Quản trị",
-      email: "mod@example.com",
-      avatar: "https://example.com/mod.jpg"
-    },
-    reason: "Blog có chứa nội dung quảng cáo trá hình.",
-    photos: [],
-    status: "approved",
-    createdAt: "2025-07-05T08:00:00.000Z",
-    updatedAt: "2025-07-05T08:30:00.000Z"
-  }
 ];
 
 type dialogDetail = {
   isOpen: boolean;
   detail: {
-    donor?: User;
-    amount: number,
-    message: string,
-    createdAt: Date,
-    updatedAt: Date,
+    _id: string;
+      reportType: string;
+      post?: ReportPost;   
+      reportedBy: ReportUser;
+      reviewedBy?: ReportUser;
+      reason: string;
+      photos?: string[];
+      status: string;
+      createdAt: Date; 
+      updatedAt: Date;
   };
 };
+
+const statusTiengViet = (statusName: string) => {
+    if (statusName === "approved") {
+      return (
+        <p className="uppercase font-semibold text-green-600">Chấp thuận</p>
+      );
+    } else if (statusName === "rejected") {
+      return <p className="uppercase font-semibold text-red-600">Từ chối</p>;
+    } else {
+      return (
+        <p className="uppercase font-semibold text-amber-600">Chờ xử lý</p>
+      );
+    }
+  };
 
 const PostReportManagement = () => {
       const [donationData, setDonationData] = useState<DonationTableData[]>([]);
       const [filteredDonations, setFilteredDonations] = useState<DonationTableData[]>([]);
       // const {userAPI, donationAPI} = useContext(AppContext);
       const authAxios = useAuthAxios();
+      const [loading, setLoading] = useState<boolean>(false);
       const [donationRefresh, setDonationRefresh] = useState<boolean>(false);
-      // const [dialogDetail, setDialogDetail] = useState<dialogDetail>({
-      //   isOpen: false,
-      //   detail: {
-      //     donor: {
-      //       id: "u5",
-      //       user: "USR005",
-      //       username: "animalhero",
-      //       fullName: "Hoàng Thị E",
-      //       email: "hoange@example.com",
-      //       role: "moderator",
-      //       avatar: "https://example.com/avatar/u5.jpg",
-      //       createdAt: "2025-01-01T00:00:00Z",
-      //     },
-      //     amount: 300000,
-      //     message: "Tiếp tục sứ mệnh tuyệt vời!",
-      //     createdAt: new Date("2025-07-04T16:20:00Z"),
-      //     updatedAt: new Date("2025-07-04T16:20:00Z"),
-      //   },
-      // });
+      const [isPreview, setIsPreview] = useState<boolean>(false);
+      const [currentIndex, setCurrentIndex] = useState<number>(0);
+      const [isFullVisionLength, setIsFullVisionLength] = useState<boolean>(false);
+      const [dialogDetail, setDialogDetail] = useState<dialogDetail>({
+        isOpen: false,
+        detail: {
+          _id: "rpt004",
+          reportType: "post",
+          post: {
+            _id: "post567",
+            title: "Bán mèo giá rẻ",
+            photos: ["https://example.com/post2.jpg"],
+            privacy: ["public"],
+            createdBy: {
+              _id: "user006",
+              fullName: "Lý Thị F",
+              email: "lyf@example.com",
+              avatar: "https://example.com/avatar6.jpg",
+            },
+            status: "active",
+          },
+          reportedBy: {
+            _id: "user007",
+            fullName: "Đặng Văn G",
+            email: "dangvg@example.com",
+            avatar: "https://example.com/avatar7.jpg",
+          },
+          reason: "Nội dung nghi ngờ lừa đảo.",
+          photos: ["https://example.com/evidence2.jpg"],
+          status: "pending",
+          createdAt: new Date("2025-07-04T09:00:00.000Z"),
+          updatedAt: new Date("2025-07-04T09:00:00.000Z"),
+        },
+      });
+      const postPhotos = dialogDetail.detail?.post?.photos ?? [] //anh tu post
+      const evidencePhotos = dialogDetail.detail?.photos ?? []  //anh tu bang chung
+      const allPhotos = [...postPhotos, ...evidencePhotos] //tat ca anh
+
 
       // useEffect(() => {
       //   authAxios.get(`${donationAPI}/get-all`)
@@ -218,25 +141,15 @@ const PostReportManagement = () => {
       const columns: ColumnDef<ReportTableData>[] = [
         {
           header: "STT",
-          cell: ({ row }) => <p className="text-center">{row.index + 1}</p>,
-        },
-        {
-          accessorKey: "reportType",
-          header: ({ column }) => {
+          cell: ({ row, table }) => {
+            const pageIndex = table.getState().pagination.pageIndex;
+            const pageSize = table.getState().pagination.pageSize;
             return (
-              <Button
-                variant="ghost"
-                onClick={() =>
-                  column.toggleSorting(column.getIsSorted() === "asc")
-                }
-                className="cursor-pointer"
-              >
-                Loại báo cáo
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
+              <p className="text-center">
+                {pageIndex * pageSize + row.index + 1}
+              </p>
             );
           },
-          cell: ({ row }) => row.original.reportType
         },
         {
           accessorKey: "reportedBy",
@@ -264,6 +177,26 @@ const PostReportManagement = () => {
           },
         },
         {
+          accessorKey: "reason",
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="cursor-pointer"
+              >
+                Lý do
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            );
+          },
+          cell: ({ row }) => {
+            return <p className='px-2'>{row.original.reason}</p>;
+          },
+        },
+        {
           accessorKey: "status",
           header: ({ column }) => {
             return (
@@ -280,7 +213,14 @@ const PostReportManagement = () => {
             );
           },
           cell: ({ row }) => {
-            return <Badge>{row.original.status}</Badge>;
+            if(row.original.status === "pending"){
+                return <Badge variant="default">Chờ xử lý</Badge>;
+            }else if(row.original.status === "aprroved"){
+                return <Badge variant="outline" className='bg-green-500 text-white'>Chấp thuận</Badge>;
+            }else{
+                return <Badge variant="destructive">Từ chối</Badge>;
+            }
+            
           },
         },
         {
@@ -306,28 +246,6 @@ const PostReportManagement = () => {
           ),
         },
         {
-          accessorKey: "updatedAt",
-          header: ({ column }) => {
-            return (
-              <Button
-                variant="ghost"
-                onClick={() =>
-                  column.toggleSorting(column.getIsSorted() === "asc")
-                }
-                className="cursor-pointer"
-              >
-                Lần cuối cập nhập
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            );
-          },
-          cell: ({ row }) => (
-            <span className="px-2">
-              {new Date(row.original.updatedAt).toLocaleDateString("vi-VN")}
-            </span>
-          ),
-        },
-        {
           id: "actions",
           cell: ({ row }) => (
             <DropdownMenu>
@@ -343,6 +261,9 @@ const PostReportManagement = () => {
                 <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                 <DropdownMenuGroup>
                   <DropdownMenuItem
+                  onClick={() => {
+                    setDialogDetail({detail: {...row.original}, isOpen: true})
+                  }}
                     className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
                   >
                     <NotebookText className="w-4 h-4" /> Xem thông tin chi tiết
@@ -354,6 +275,39 @@ const PostReportManagement = () => {
         },
       ];
 
+        const handleAprroveReport = (data: dialogDetail) => {
+          try {
+            console.log(data);
+          } catch (error: any) {
+            console.log(error?.response.data.message);
+          }
+        };
+
+        const handleRejectReport = (data: dialogDetail) => {
+          try {
+            console.log(data);
+          } catch (error: any) {
+            console.log(error?.response.data.message);
+          }
+        };
+
+  // hien thi preview anh
+    if (isPreview) {
+        return (
+    dialogDetail.detail.photos &&
+    dialogDetail.detail.photos.length > 0 && (
+    <Lightbox
+    open={isPreview}
+    close={() => setIsPreview(false)}
+    index={currentIndex}
+    slides={allPhotos.map((src) => ({ src }))}
+    plugins={[Zoom]}
+    />
+    )
+    );
+    }
+
+
   return (
     <div className="flex flex-1 flex-col px-20 py-10">
       <div className="@container/main flex flex-1 flex-col gap-2">
@@ -363,9 +317,220 @@ const PostReportManagement = () => {
           </h4>
         </div>
         <div className="col-span-12 px-5">
+          <Badge variant="destructive" className="mx-auto p-2">Báo cáo bài viết chờ xử lý: 12</Badge>
           <DataTable columns={columns} data={mockReportData ?? []} />
         </div>
       </div>
+
+       <Dialog
+  open={dialogDetail.isOpen}
+  onOpenChange={(open) => {
+    if (!open) {
+      setDialogDetail({ ...dialogDetail, isOpen: false });
+      close();
+    }
+  }}
+>
+  <DialogContent className="!max-w-[55vw] !max-h-[80vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Chi tiết báo cáo bài viết</DialogTitle>
+      <DialogDescription>
+        Thông tin chi tiết về bài viết bị báo cáo
+      </DialogDescription>
+    </DialogHeader>
+
+    <div className="grid grid-cols-12 gap-6 py-4 text-sm">
+      {/* Bài viết bị báo cáo */}
+      <div className="col-span-12">
+        <h3 className="text-base font-semibold mb-2">Bài viết bị báo cáo</h3>
+        <div className="grid grid-cols-12 gap-4 bg-muted p-4 rounded-lg">
+          <div className="col-span-4 space-y-3">
+            <div>
+              <p className="font-medium">Người đăng</p>
+              <div className="flex items-center gap-2">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={dialogDetail.detail?.post?.createdBy?.avatar} />
+                </Avatar>
+                <p>{dialogDetail.detail?.post?.createdBy?.fullName}</p>
+              </div>
+            </div>
+            <div>
+              <p className="font-medium">Trạng thái</p>
+              <p className="capitalize font-semibold text-blue-600">
+                {dialogDetail.detail?.post?.status}
+              </p>
+            </div>
+            <div>
+              <p className="font-medium">Chế độ hiển thị</p>
+              {dialogDetail.detail?.post?.privacy?.map(setting => {
+                if(setting === "public"){
+                  return <Badge>Công khai</Badge>
+                }else{
+                  return <Badge>Riêng tư</Badge>
+                }
+              })}
+            </div>
+          </div>
+          <div className="col-span-8 space-y-3">
+            <div>
+              <p className="font-medium">Tiêu đề</p>
+              {dialogDetail.detail?.post?.title && dialogDetail.detail?.post?.title.length >= 300 && !isFullVisionLength &&
+                <>
+                  <p>{dialogDetail.detail?.post?.title.slice(0,300)}</p>
+                  <a className='text-blue-500 underline cursor-pointer' onClick={() => {
+                    setIsFullVisionLength(true);
+                  }}>Đọc thêm</a>
+                </>
+              }
+              {dialogDetail.detail?.post?.title && dialogDetail.detail?.post?.title.length >= 300 && isFullVisionLength &&
+                <>
+                  <p>{dialogDetail.detail?.post?.title}</p>
+                  <a className='text-blue-500 underline cursor-pointer' onClick={() => {
+                    setIsFullVisionLength(false);
+                  }}>Rút gọn</a>
+                </>
+              }
+              {dialogDetail.detail?.post?.title && dialogDetail.detail?.post?.title.length < 300 &&
+                  <p>{dialogDetail.detail?.post?.title}</p>
+              }
+            </div>
+            <div>
+              <p className="font-medium">Ảnh bài viết</p>
+              <div className="flex gap-2 mt-1">
+                {postPhotos?.map((photo, idx) => (
+                  <img
+                    key={idx}
+                    src={photo}
+                    alt={`post-photo-${idx}`}
+                    className="h-24 w-36 object-cover rounded border cursor-pointer hover:scale-105 transition-transform"
+                    onClick={() => {
+                      setCurrentIndex(idx)
+                      setIsPreview(true)
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Chi tiết báo cáo */}
+      <div className="col-span-12">
+        <h3 className="text-base font-semibold mb-2">Chi tiết báo cáo</h3>
+        <div className="grid grid-cols-12 gap-4 bg-muted p-4 rounded-lg">
+          <div className="col-span-6 space-y-3">
+            <div>
+              <p className="font-medium">Người báo cáo</p>
+              <div className="flex items-center gap-2">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={dialogDetail.detail?.reportedBy?.avatar} />
+                </Avatar>
+                <p>{dialogDetail.detail?.reportedBy?.fullName}</p>
+              </div>
+            </div>
+            <div>
+              <p className="font-medium">Lý do báo cáo</p>
+              {dialogDetail.detail?.reason.length >= 300 && !isFullVisionLength &&
+                <>
+                  <p>{dialogDetail.detail?.reason.slice(0,300)}</p>
+                  <a onClick={() => {
+                    setIsFullVisionLength(true);
+                  }}>Đọc thêm</a>
+                </>
+              }
+              {dialogDetail.detail?.reason.length >= 300 && isFullVisionLength &&
+                <>
+                  <p>{dialogDetail.detail?.reason}</p>
+                  <a onClick={() => {
+                    setIsFullVisionLength(false);
+                  }}>Rút gọn</a>
+                </>
+              }
+              {dialogDetail.detail?.reason.length < 300 &&
+                  <p>{dialogDetail.detail?.reason}</p>
+              }
+              
+            </div>
+            {dialogDetail.detail?.reviewedBy && <div>
+              <p className="font-medium">Xử lý bởi</p>
+              <div className="flex items-center gap-2">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={dialogDetail.detail?.reviewedBy?.avatar} />
+                </Avatar>
+                <p>{dialogDetail.detail?.reviewedBy?.fullName}</p>
+              </div>
+            </div>}
+          </div>
+          <div className="col-span-6 space-y-3">
+            <div>
+              <p className="font-medium">Trạng thái xử lý</p>
+              {statusTiengViet(dialogDetail.detail?.status)}
+            </div>
+            <div>
+              <p className="font-medium">Ngày báo cáo</p>
+              <p>{new Date(dialogDetail.detail?.createdAt).toLocaleString("vi-VN")}</p>
+            </div>
+            <div>
+              <p className="font-medium">Xử lý vào</p>
+              <p>{new Date(dialogDetail.detail?.updatedAt).toLocaleString("vi-VN")}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Ảnh bằng chứng */}
+      {dialogDetail.detail.photos && dialogDetail.detail.photos?.length > 0 && (
+        <div className="col-span-12 max-w-[32vw]">
+          <p className="text-base font-semibold mb-2">Ảnh bằng chứng</p>
+          <div className="flex flex-wrap gap-3 p-2 border rounded-md">
+            {evidencePhotos?.map((photo, idx) => (
+              <img
+                key={idx}
+                src={photo}
+                alt={`evidence-${idx}`}
+                onClick={() => {
+                  setCurrentIndex(postPhotos.length + idx)
+                  setIsPreview(true)
+                }}
+                className="h-24 w-36 object-cover rounded cursor-pointer border hover:scale-105 transition-transform"
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+
+    <DialogFooter>
+      <DialogClose asChild>
+        <Button
+          variant="outline"
+          className="cursor-pointer"
+          onClick={() => setDialogDetail({ ...dialogDetail, isOpen: false })}
+        >
+          Đóng
+        </Button>
+      </DialogClose>
+
+      {dialogDetail.detail.status === "pending" && (
+        <>
+          {loading ? (
+            <Button disabled><Loader2Icon className="mr-2 animate-spin" /> Vui lòng chờ</Button>
+          ) : (
+            <>
+              <Button onClick={() => handleAprroveReport(dialogDetail)}>
+                Chấp thuận
+              </Button>
+              <Button variant="destructive" onClick={() => handleRejectReport(dialogDetail)}>
+                Từ chối
+              </Button>
+            </>
+          )}
+        </>
+      )}
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
 
     </div>
   );

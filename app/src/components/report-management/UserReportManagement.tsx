@@ -5,13 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppContext from '@/context/AppContext';
+import type { UserReportDetailDialog } from '@/types/DetailDialog';
 import type { DonationTableData } from '@/types/DonationTableData';
 import type ReportTableData from '@/types/ReportTableData';
-import type { User } from '@/types/User';
 import useAuthAxios from '@/utils/authAxios';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal, NotebookText } from 'lucide-react';
+import { ArrowUpDown, Loader2Icon, MoreHorizontal, NotebookText } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react'
+import Lightbox from "yet-another-react-lightbox";
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import UserReportDetailDialogUI from './ui/UserReportDetailDialog';
+import HandleReport from './logic/HandleReport';
+
 
 export const mockReportData: ReportTableData[] = [
   {
@@ -21,193 +26,85 @@ export const mockReportData: ReportTableData[] = [
       _id: "user001",
       fullName: "Nguyễn Văn A",
       email: "vana@example.com",
-      avatar: "https://example.com/avatar1.jpg",
+      avatar: "https://noidangsong.vn/files/uploads/fb1735058496563345/1526444239-tt_avatar_small.jpg",
       phoneNumber: "0901234567",
       bio: "Tôi yêu động vật",
       dob: "2000-05-20T00:00:00.000Z",
       address: "Hà Nội",
       location: { lat: 21.0278, lng: 105.8342 },
-      createdAt: "2024-12-01T10:00:00.000Z",
-      updatedAt: "2025-01-01T10:00:00.000Z",
+      createdAt: new Date("2024-12-01T10:00:00.000Z"),
+      updatedAt: new Date("2025-01-01T10:00:00.000Z"),
       background: "https://example.com/bg1.jpg"
     },
     reportedBy: {
       _id: "user002",
       fullName: "Trần Thị B",
       email: "tranb@example.com",
-      avatar: "https://example.com/avatar2.jpg",
+      avatar: "https://dnm.nflximg.net/api/v6/2DuQlx0fM4wd1nzqm5BFBi6ILa8/AAAAQWSCUCGDxcednipve9CFJbfZavd0HMi-_QlsgVjzHnr6lo578CSoz_Z-76uPz-kLATAD9YseSROMjXhDkeboMuZ1qBIYDVnYdwHo1Xnv08aj20W34wcDOTPGSmBpbdrMaz30WdLIjrNaIdcRzInRtp9FvRE.jpg?r=2a6",
     },
     reviewedBy: {
       _id: "admin001",
       fullName: "Admin Kiểm Duyệt",
       email: "admin@example.com",
-      avatar: "https://example.com/admin.jpg"
+      avatar: "https://noidangsong.vn/files/uploads/fb1735058496563345/1526444239-tt_avatar_small.jpg"
     },
     reason: "Tài khoản có hành vi spam.",
-    photos: [],
+    photos: ["https://images.squarespace-cdn.com/content/v1/54822a56e4b0b30bd821480c/45ed8ecf-0bb2-4e34-8fcf-624db47c43c8/Golden+Retrievers+dans+pet+care.jpeg", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Labrador_Retriever_portrait.jpg/1200px-Labrador_Retriever_portrait.jpg"],
     status: "approved",
-    createdAt: "2025-07-01T08:00:00.000Z",
-    updatedAt: "2025-07-01T09:00:00.000Z"
+    createdAt: new Date("2025-07-01T08:00:00.000Z"),
+    updatedAt: new Date("2025-07-01T09:00:00.000Z")
   },
-  {
-    _id: "rpt002",
-    reportType: "post",
-    post: {
-      _id: "post123",
-      title: "Cần cho mèo ăn",
-      photos: ["https://example.com/post1.jpg"],
-      privacy: ["public"],
-      createdBy: {
-        _id: "user003",
-        fullName: "Lê Văn C",
-        email: "lec@example.com",
-        avatar: "https://example.com/avatar3.jpg"
-      },
-      status: "active",
-      createdAt: "2025-06-28T14:00:00.000Z"
-    },
-    reportedBy: {
-      _id: "user004",
-      fullName: "Nguyễn Thị D",
-      email: "nguyend@example.com",
-      avatar: "https://example.com/avatar4.jpg"
-    },
-    reason: "Bài viết chứa nội dung không phù hợp.",
-    photos: ["https://example.com/evidence1.jpg"],
-    status: "pending",
-    createdAt: "2025-07-03T12:30:00.000Z",
-    updatedAt: "2025-07-03T12:30:00.000Z"
-  },
-  {
-    _id: "rpt003",
-    reportType: "blog",
-    blog: {
-      _id: "blog999",
-      title: "Cách chăm sóc chó con mùa hè",
-      description: "Hướng dẫn cơ bản về chăm sóc thú nuôi.",
-      content: "Chi tiết từng bước cách chăm sóc...",
-      thumbnail_url: "https://example.com/blogthumb.jpg",
-      status: "published",
-      shelter: {
-        _id: "shelter01",
-        name: "Paws & Claws Rescue Center",
-        avatar: "https://example.com/shelter.jpg",
-        address: "123 Đường Yêu Thương, Quận 1, TP.HCM"
-      },
-      createdAt: "2025-06-20T10:00:00.000Z"
-    },
-    reportedBy: {
-      _id: "user005",
-      fullName: "Phạm Văn E",
-      email: "phame@example.com",
-      avatar: "https://example.com/avatar5.jpg"
-    },
-    reason: "Thông tin sai lệch.",
-    photos: [],
-    status: "rejected",
-    createdAt: "2025-07-02T11:00:00.000Z",
-    updatedAt: "2025-07-02T15:00:00.000Z"
-  },
-  {
-    _id: "rpt004",
-    reportType: "post",
-    post: {
-      _id: "post567",
-      title: "Bán mèo giá rẻ",
-      photos: ["https://example.com/post2.jpg"],
-      privacy: ["public"],
-      createdBy: {
-        _id: "user006",
-        fullName: "Lý Thị F",
-        email: "lyf@example.com",
-        avatar: "https://example.com/avatar6.jpg"
-      },
-      status: "active"
-    },
-    reportedBy: {
-      _id: "user007",
-      fullName: "Đặng Văn G",
-      email: "dangvg@example.com",
-      avatar: "https://example.com/avatar7.jpg"
-    },
-    reason: "Nội dung nghi ngờ lừa đảo.",
-    photos: ["https://example.com/evidence2.jpg"],
-    status: "pending",
-    createdAt: "2025-07-04T09:00:00.000Z",
-    updatedAt: "2025-07-04T09:00:00.000Z"
-  },
-  {
-    _id: "rpt005",
-    reportType: "blog",
-    blog: {
-      _id: "blog456",
-      title: "Kinh nghiệm nuôi mèo con",
-      content: "Chi tiết từng giai đoạn phát triển của mèo.",
-      thumbnail_url: "https://example.com/blog2.jpg",
-      status: "moderating",
-      shelter: {
-        _id: "shelter02",
-        name: "Little Paws Sanctuary",
-        avatar: "https://example.com/shelter2.jpg",
-        address: "456 Đường Ấm Áp, Quận 2, TP.HCM"
-      }
-    },
-    reportedBy: {
-      _id: "user008",
-      fullName: "Trương Mỹ H",
-      email: "truongmh@example.com",
-      avatar: "https://example.com/avatar8.jpg"
-    },
-    reviewedBy: {
-      _id: "admin002",
-      fullName: "Mod Quản trị",
-      email: "mod@example.com",
-      avatar: "https://example.com/mod.jpg"
-    },
-    reason: "Blog có chứa nội dung quảng cáo trá hình.",
-    photos: [],
-    status: "approved",
-    createdAt: "2025-07-05T08:00:00.000Z",
-    updatedAt: "2025-07-05T08:30:00.000Z"
-  }
 ];
 
-type dialogDetail = {
-  isOpen: boolean;
-  detail: {
-    donor?: User;
-    amount: number,
-    message: string,
-    createdAt: Date,
-    updatedAt: Date,
-  };
-};
 
 const UserReportManagemnt = () => {
       const [donationData, setDonationData] = useState<DonationTableData[]>([]);
       const [filteredDonations, setFilteredDonations] = useState<DonationTableData[]>([]);
       // const {userAPI, donationAPI} = useContext(AppContext);
       const authAxios = useAuthAxios();
+      const [loading, setLoading] = useState<boolean>(false);
       const [donationRefresh, setDonationRefresh] = useState<boolean>(false);
-      // const [dialogDetail, setDialogDetail] = useState<dialogDetail>({
-      //   isOpen: false,
-      //   detail: {
-      //     donor: {
-      //       id: "u5",
-      //       user: "USR005",
-      //       username: "animalhero",
-      //       fullName: "Hoàng Thị E",
-      //       email: "hoange@example.com",
-      //       role: "moderator",
-      //       avatar: "https://example.com/avatar/u5.jpg",
-      //       createdAt: "2025-01-01T00:00:00Z",
-      //     },
-      //     amount: 300000,
-      //     message: "Tiếp tục sứ mệnh tuyệt vời!",
-      //     createdAt: new Date("2025-07-04T16:20:00Z"),
-      //     updatedAt: new Date("2025-07-04T16:20:00Z"),
-      //   },
-      // });
+      const [isPreview, setIsPreview] = useState<boolean>(false);
+      const [currentIndex, setCurrentIndex] = useState<number>(0);
+      const [dialogDetail, setDialogDetail] = useState<UserReportDetailDialog>({
+        isOpen: false,
+        detail: {
+          _id: "rpt001",
+          reportType: "user",
+          user: {
+            _id: "user001",
+            fullName: "Nguyễn Văn A",
+            email: "vana@example.com",
+            avatar: "https://example.com/avatar1.jpg",
+            phoneNumber: "0901234567",
+            bio: "Tôi yêu động vật",
+            dob: "2000-05-20T00:00:00.000Z",
+            address: "Hà Nội",
+            location: { lat: 21.0278, lng: 105.8342 },
+            createdAt: new Date("2024-12-01T10:00:00.000Z"),
+            updatedAt: new Date("2025-01-01T10:00:00.000Z"),
+            background: "https://example.com/bg1.jpg",
+          },
+          reportedBy: {
+            _id: "user002",
+            fullName: "Trần Thị B",
+            email: "tranb@example.com",
+            avatar: "https://example.com/avatar2.jpg",
+          },
+          reviewedBy: {
+            _id: "admin001",
+            fullName: "Admin Kiểm Duyệt",
+            email: "admin@example.com",
+            avatar: "https://example.com/admin.jpg",
+          },
+          reason: "Tài khoản có hành vi spam.",
+          photos: [],
+          status: "approved",
+          createdAt: new Date("2025-07-01T08:00:00.000Z"),
+          updatedAt: new Date("2025-07-01T09:00:00.000Z"),
+        },
+      });
+    const {handleApproveUserReport, handleRejectUserReport} = HandleReport({reportData: dialogDetail});
 
       // useEffect(() => {
       //   authAxios.get(`${donationAPI}/get-all`)
@@ -290,7 +187,14 @@ const UserReportManagemnt = () => {
             );
           },
           cell: ({ row }) => {
-            return <Badge>{row.original.status}</Badge>;
+            if(row.original.status === "pending"){
+                return <Badge variant="default">Chờ xử lý</Badge>;
+            }else if(row.original.status === "aprroved"){
+                return <Badge variant="outline" className='bg-green-500 text-white'>Chấp thuận</Badge>;
+            }else{
+                return <Badge variant="destructive">Từ chối</Badge>;
+            }
+            
           },
         },
         {
@@ -331,6 +235,9 @@ const UserReportManagemnt = () => {
                 <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                 <DropdownMenuGroup>
                   <DropdownMenuItem
+                  onClick={() => {
+                    setDialogDetail({detail: {...row.original}, isOpen: true})
+                  }}
                     className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
                   >
                     <NotebookText className="w-4 h-4" /> Xem thông tin chi tiết
@@ -342,6 +249,23 @@ const UserReportManagemnt = () => {
         },
       ];
 
+  // hien thi preview anh
+    if (isPreview) {
+        return (
+    dialogDetail.detail.photos &&
+    dialogDetail.detail.photos.length > 0 && (
+    <Lightbox
+    open={isPreview}
+    index={currentIndex}
+    close={() => setIsPreview(false)}
+    slides={dialogDetail.detail.photos.map((src) => ({ src }))}
+    plugins={[Zoom]}
+    />
+    )
+    );
+    }
+
+
   return (
     <div className="flex flex-1 flex-col px-20 py-10">
       <div className="@container/main flex flex-1 flex-col gap-2">
@@ -351,10 +275,20 @@ const UserReportManagemnt = () => {
           </h4>
         </div>
         <div className="col-span-12 px-5">
+        <Badge variant="destructive" className="mx-auto p-2">Báo cáo tài khoản chờ xử lý: 12</Badge>
           <DataTable columns={columns} data={mockReportData ?? []} />
         </div>
       </div>
 
+      <UserReportDetailDialogUI
+        dialogDetail={dialogDetail}
+        setDialogDetail={setDialogDetail}
+        handleAprroveReport={handleApproveUserReport}
+        handleRejectReport={handleRejectUserReport}
+        loading={loading}
+        setCurrentIndex={setCurrentIndex}
+        setIsPreview={setIsPreview}
+      />
     </div>
   );
 }
