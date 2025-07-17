@@ -1,9 +1,12 @@
-import React from 'react'
+import { Badge } from "@/components/ui/badge";
+import { Outlet } from "react-router-dom";
 
 const ReportManagement = () => {
   return (
-    <div>ReportManagement</div>
-  )
+    <div className="@container/main flex flex-1 flex-col gap-2">
+        <Outlet />
+    </div>
+  );
 }
 
 export default ReportManagement

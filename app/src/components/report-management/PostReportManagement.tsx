@@ -23,7 +23,15 @@ export const mockReportData: ReportTableData[] = [
     reportType: "post",
     post: {
       _id: "post567",
-      title: "Bán mèo giá rẻ",
+      title: `Tên lửa siêu vượt âm Fattah là vũ khí có tốc độ tối thiểu gấp 5 lần âm thanh (Mach 5), tương đương hơn 6.200 km/h. IRGC ra mắt tên lửa Fattah hồi tháng 6/2023, mô tả đây là "bước nhảy vọt lớn trong lĩnh vực tên lửa" của nước này. Giới chức Iran cho hay Fattah có tầm bắn 1.400 km, tốc độ tối đa khoảng 15.000 km/h, nhanh gấp 14 lần âm thanh, và có khả năng "xuyên thủng mọi lá chắn phòng thủ".
+
+Tuy nhiên, có nhiều đánh giá liên quan đến tên lửa này. Bộ Quốc phòng Israel từng nhận định Fattah là t
+Tên lửa siêu vượt âm Fattah là vũ khí có tốc độ tối thiểu gấp 5 lần âm thanh (Mach 5), tương đương hơn 6.200 km/h. IRGC ra mắt tên lửa Fattah hồi tháng 6/2023, mô tả đây là "bước nhảy vọt lớn trong lĩnh vực tên lửa" của nước này. Giới chức Iran cho hay Fattah có tầm bắn 1.400 km, tốc độ tối đa khoảng 15.000 km/h, nhanh gấp 14 lần âm thanh, và có khả năng "xuyên thủng mọi lá chắn phòng thủ".
+
+Tuy nhiên, có nhiều đánh giá liên quan đến tên lửa này. Bộ Quốc phòng Israel từng nhận định Fattah là t
+Tên lửa siêu vượt âm Fattah là vũ khí có tốc độ tối thiểu gấp 5 lần âm thanh (Mach 5), tương đương hơn 6.200 km/h. IRGC ra mắt tên lửa Fattah hồi tháng 6/2023, mô tả đây là "bước nhảy vọt lớn trong lĩnh vực tên lửa" của nước này. Giới chức Iran cho hay Fattah có tầm bắn 1.400 km, tốc độ tối đa khoảng 15.000 km/h, nhanh gấp 14 lần âm thanh, và có khả năng "xuyên thủng mọi lá chắn phòng thủ".
+
+Tuy nhiên, có nhiều đánh giá liên quan đến tên lửa này. Bộ Quốc phòng Israel từng nhận định Fattah là t`,
       photos: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDCsqRYLAFDdL4Ix_AHai7kNVyoPV9Ssv1xg&s", "https://d2zp5xs5cp8zlg.cloudfront.net/image-79322-800.jpg"],
       privacy: ["public"],
       createdBy: {
@@ -64,7 +72,21 @@ type dialogDetail = {
   };
 };
 
-const BlogManagement = () => {
+const statusTiengViet = (statusName: string) => {
+    if (statusName === "approved") {
+      return (
+        <p className="uppercase font-semibold text-green-600">Chấp thuận</p>
+      );
+    } else if (statusName === "rejected") {
+      return <p className="uppercase font-semibold text-red-600">Từ chối</p>;
+    } else {
+      return (
+        <p className="uppercase font-semibold text-amber-600">Chờ xử lý</p>
+      );
+    }
+  };
+
+const PostReportManagement = () => {
       const [donationData, setDonationData] = useState<DonationTableData[]>([]);
       const [filteredDonations, setFilteredDonations] = useState<DonationTableData[]>([]);
       // const {userAPI, donationAPI} = useContext(AppContext);
@@ -73,6 +95,7 @@ const BlogManagement = () => {
       const [donationRefresh, setDonationRefresh] = useState<boolean>(false);
       const [isPreview, setIsPreview] = useState<boolean>(false);
       const [currentIndex, setCurrentIndex] = useState<number>(0);
+      const [isFullVisionLength, setIsFullVisionLength] = useState<boolean>(false);
       const [dialogDetail, setDialogDetail] = useState<dialogDetail>({
         isOpen: false,
         detail: {
@@ -104,6 +127,10 @@ const BlogManagement = () => {
           updatedAt: new Date("2025-07-04T09:00:00.000Z"),
         },
       });
+      const postPhotos = dialogDetail.detail?.post?.photos ?? [] //anh tu post
+      const evidencePhotos = dialogDetail.detail?.photos ?? []  //anh tu bang chung
+      const allPhotos = [...postPhotos, ...evidencePhotos] //tat ca anh
+
 
       // useEffect(() => {
       //   authAxios.get(`${donationAPI}/get-all`)
@@ -273,10 +300,7 @@ const BlogManagement = () => {
     open={isPreview}
     close={() => setIsPreview(false)}
     index={currentIndex}
-    slides={[
-    ...dialogDetail.detail?.post?.photos.map((src) => ({ src })) || [],
-    ...dialogDetail.detail?.photos.map((src) => ({ src })) || []
-    ]}
+    slides={allPhotos.map((src) => ({ src }))}
     plugins={[Zoom]}
     />
     )
@@ -289,10 +313,11 @@ const BlogManagement = () => {
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="col-span-12 px-5 flex flex-col gap-5">
           <h4 className="scroll-m-20 min-w-40 text-xl font-semibold tracking-tight text-center">
-            Danh sách bài viết trong hệ thống
+            Danh sách báo cáo post
           </h4>
         </div>
         <div className="col-span-12 px-5">
+          <Badge variant="destructive" className="mx-auto p-2">Báo cáo bài viết chờ xử lý: 12</Badge>
           <DataTable columns={columns} data={mockReportData ?? []} />
         </div>
       </div>
@@ -306,9 +331,9 @@ const BlogManagement = () => {
     }
   }}
 >
-  <DialogContent className="!max-w-[60vw] !max-h-[80vh] overflow-y-auto">
+  <DialogContent className="!max-w-[55vw] !max-h-[80vh] overflow-y-auto">
     <DialogHeader>
-      <DialogTitle>Chi tiết bài blog</DialogTitle>
+      <DialogTitle>Chi tiết báo cáo bài viết</DialogTitle>
       <DialogDescription>
         Thông tin chi tiết về bài viết bị báo cáo
       </DialogDescription>
@@ -321,22 +346,6 @@ const BlogManagement = () => {
         <div className="grid grid-cols-12 gap-4 bg-muted p-4 rounded-lg">
           <div className="col-span-4 space-y-3">
             <div>
-              <p className="font-medium">Tiêu đề</p>
-              <p>{dialogDetail.detail?.post?.title || "Không có"}</p>
-            </div>
-            <div>
-              <p className="font-medium">Trạng thái</p>
-              <p className="capitalize font-semibold text-blue-600">
-                {dialogDetail.detail?.post?.status}
-              </p>
-            </div>
-            <div>
-              <p className="font-medium">Chế độ hiển thị</p>
-              <p>{dialogDetail.detail?.post?.privacy?.join(", ") || "Không rõ"}</p>
-            </div>
-          </div>
-          <div className="col-span-8 space-y-3">
-            <div>
               <p className="font-medium">Người đăng</p>
               <div className="flex items-center gap-2">
                 <Avatar className="w-8 h-8">
@@ -346,9 +355,49 @@ const BlogManagement = () => {
               </div>
             </div>
             <div>
+              <p className="font-medium">Trạng thái</p>
+              <p className="capitalize font-semibold text-blue-600">
+                {dialogDetail.detail?.post?.status}
+              </p>
+            </div>
+            <div>
+              <p className="font-medium">Chế độ hiển thị</p>
+              {dialogDetail.detail?.post?.privacy?.map(setting => {
+                if(setting === "public"){
+                  return <Badge>Công khai</Badge>
+                }else{
+                  return <Badge>Riêng tư</Badge>
+                }
+              })}
+            </div>
+          </div>
+          <div className="col-span-8 space-y-3">
+            <div>
+              <p className="font-medium">Tiêu đề</p>
+              {dialogDetail.detail?.post?.title && dialogDetail.detail?.post?.title.length >= 300 && !isFullVisionLength &&
+                <>
+                  <p>{dialogDetail.detail?.post?.title.slice(0,300)}</p>
+                  <a className='text-blue-500 underline cursor-pointer' onClick={() => {
+                    setIsFullVisionLength(true);
+                  }}>Đọc thêm</a>
+                </>
+              }
+              {dialogDetail.detail?.post?.title && dialogDetail.detail?.post?.title.length >= 300 && isFullVisionLength &&
+                <>
+                  <p>{dialogDetail.detail?.post?.title}</p>
+                  <a className='text-blue-500 underline cursor-pointer' onClick={() => {
+                    setIsFullVisionLength(false);
+                  }}>Rút gọn</a>
+                </>
+              }
+              {dialogDetail.detail?.post?.title && dialogDetail.detail?.post?.title.length < 300 &&
+                  <p>{dialogDetail.detail?.post?.title}</p>
+              }
+            </div>
+            <div>
               <p className="font-medium">Ảnh bài viết</p>
               <div className="flex gap-2 mt-1">
-                {dialogDetail.detail?.post?.photos?.map((photo, idx) => (
+                {postPhotos?.map((photo, idx) => (
                   <img
                     key={idx}
                     src={photo}
@@ -382,22 +431,48 @@ const BlogManagement = () => {
             </div>
             <div>
               <p className="font-medium">Lý do báo cáo</p>
-              <p>{dialogDetail.detail?.reason || "Không có"}</p>
+              {dialogDetail.detail?.reason.length >= 300 && !isFullVisionLength &&
+                <>
+                  <p>{dialogDetail.detail?.reason.slice(0,300)}</p>
+                  <a onClick={() => {
+                    setIsFullVisionLength(true);
+                  }}>Đọc thêm</a>
+                </>
+              }
+              {dialogDetail.detail?.reason.length >= 300 && isFullVisionLength &&
+                <>
+                  <p>{dialogDetail.detail?.reason}</p>
+                  <a onClick={() => {
+                    setIsFullVisionLength(false);
+                  }}>Rút gọn</a>
+                </>
+              }
+              {dialogDetail.detail?.reason.length < 300 &&
+                  <p>{dialogDetail.detail?.reason}</p>
+              }
+              
             </div>
+            {dialogDetail.detail?.reviewedBy && <div>
+              <p className="font-medium">Xử lý bởi</p>
+              <div className="flex items-center gap-2">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={dialogDetail.detail?.reviewedBy?.avatar} />
+                </Avatar>
+                <p>{dialogDetail.detail?.reviewedBy?.fullName}</p>
+              </div>
+            </div>}
           </div>
           <div className="col-span-6 space-y-3">
             <div>
               <p className="font-medium">Trạng thái xử lý</p>
-              <p className="capitalize font-semibold text-blue-600">
-                {dialogDetail.detail?.status}
-              </p>
+              {statusTiengViet(dialogDetail.detail?.status)}
             </div>
             <div>
               <p className="font-medium">Ngày báo cáo</p>
               <p>{new Date(dialogDetail.detail?.createdAt).toLocaleString("vi-VN")}</p>
             </div>
             <div>
-              <p className="font-medium">Cập nhật lúc</p>
+              <p className="font-medium">Xử lý vào</p>
               <p>{new Date(dialogDetail.detail?.updatedAt).toLocaleString("vi-VN")}</p>
             </div>
           </div>
@@ -406,16 +481,16 @@ const BlogManagement = () => {
 
       {/* Ảnh bằng chứng */}
       {dialogDetail.detail.photos && dialogDetail.detail.photos?.length > 0 && (
-        <div className="col-span-12">
+        <div className="col-span-12 max-w-[32vw]">
           <p className="text-base font-semibold mb-2">Ảnh bằng chứng</p>
           <div className="flex flex-wrap gap-3 p-2 border rounded-md">
-            {dialogDetail.detail.photos.map((photo, idx) => (
+            {evidencePhotos?.map((photo, idx) => (
               <img
                 key={idx}
                 src={photo}
                 alt={`evidence-${idx}`}
                 onClick={() => {
-                  setCurrentIndex(idx)
+                  setCurrentIndex(postPhotos.length + idx)
                   setIsPreview(true)
                 }}
                 className="h-24 w-36 object-cover rounded cursor-pointer border hover:scale-105 transition-transform"
@@ -461,4 +536,4 @@ const BlogManagement = () => {
   );
 }
 
-export default BlogManagement;
+export default PostReportManagement;

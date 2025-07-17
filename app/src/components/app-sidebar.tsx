@@ -66,6 +66,16 @@ const data = {
       title: "Quản lý báo cáo",
       url: "/admin/report",
       icon: IconReport,
+      items: [
+        {
+          title: "Báo cáo tài khoản",
+          url: "/admin/report/user",
+        },
+        {
+          title: "Báo cáo bài viết",
+          url: "/admin/report/post",
+        },
+      ],
     },
     {
       title: "Quản lý quyên góp",
@@ -155,7 +165,7 @@ const data = {
       icon: IconFileWord,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -178,7 +188,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
         {/* <NavDocuments items={data.documents} /> */}
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       {/* <SidebarFooter>
         <NavUser user={data.user} />

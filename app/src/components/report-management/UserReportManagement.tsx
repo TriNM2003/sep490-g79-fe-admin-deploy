@@ -1,0 +1,296 @@
+import { DataTable } from '@/components/data-table'
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import AppContext from '@/context/AppContext';
+import type { UserReportDetailDialog } from '@/types/DetailDialog';
+import type { DonationTableData } from '@/types/DonationTableData';
+import type ReportTableData from '@/types/ReportTableData';
+import useAuthAxios from '@/utils/authAxios';
+import type { ColumnDef } from '@tanstack/react-table';
+import { ArrowUpDown, Loader2Icon, MoreHorizontal, NotebookText } from 'lucide-react';
+import React, { useContext, useEffect, useState } from 'react'
+import Lightbox from "yet-another-react-lightbox";
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import UserReportDetailDialogUI from './ui/UserReportDetailDialog';
+import HandleReport from './logic/HandleReport';
+
+
+export const mockReportData: ReportTableData[] = [
+  {
+    _id: "rpt001",
+    reportType: "user",
+    user: {
+      _id: "user001",
+      fullName: "Nguyễn Văn A",
+      email: "vana@example.com",
+      avatar: "https://noidangsong.vn/files/uploads/fb1735058496563345/1526444239-tt_avatar_small.jpg",
+      phoneNumber: "0901234567",
+      bio: "Tôi yêu động vật",
+      dob: "2000-05-20T00:00:00.000Z",
+      address: "Hà Nội",
+      location: { lat: 21.0278, lng: 105.8342 },
+      createdAt: new Date("2024-12-01T10:00:00.000Z"),
+      updatedAt: new Date("2025-01-01T10:00:00.000Z"),
+      background: "https://example.com/bg1.jpg"
+    },
+    reportedBy: {
+      _id: "user002",
+      fullName: "Trần Thị B",
+      email: "tranb@example.com",
+      avatar: "https://dnm.nflximg.net/api/v6/2DuQlx0fM4wd1nzqm5BFBi6ILa8/AAAAQWSCUCGDxcednipve9CFJbfZavd0HMi-_QlsgVjzHnr6lo578CSoz_Z-76uPz-kLATAD9YseSROMjXhDkeboMuZ1qBIYDVnYdwHo1Xnv08aj20W34wcDOTPGSmBpbdrMaz30WdLIjrNaIdcRzInRtp9FvRE.jpg?r=2a6",
+    },
+    reviewedBy: {
+      _id: "admin001",
+      fullName: "Admin Kiểm Duyệt",
+      email: "admin@example.com",
+      avatar: "https://noidangsong.vn/files/uploads/fb1735058496563345/1526444239-tt_avatar_small.jpg"
+    },
+    reason: "Tài khoản có hành vi spam.",
+    photos: ["https://images.squarespace-cdn.com/content/v1/54822a56e4b0b30bd821480c/45ed8ecf-0bb2-4e34-8fcf-624db47c43c8/Golden+Retrievers+dans+pet+care.jpeg", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Labrador_Retriever_portrait.jpg/1200px-Labrador_Retriever_portrait.jpg"],
+    status: "approved",
+    createdAt: new Date("2025-07-01T08:00:00.000Z"),
+    updatedAt: new Date("2025-07-01T09:00:00.000Z")
+  },
+];
+
+
+const UserReportManagemnt = () => {
+      const [donationData, setDonationData] = useState<DonationTableData[]>([]);
+      const [filteredDonations, setFilteredDonations] = useState<DonationTableData[]>([]);
+      // const {userAPI, donationAPI} = useContext(AppContext);
+      const authAxios = useAuthAxios();
+      const [loading, setLoading] = useState<boolean>(false);
+      const [donationRefresh, setDonationRefresh] = useState<boolean>(false);
+      const [isPreview, setIsPreview] = useState<boolean>(false);
+      const [currentIndex, setCurrentIndex] = useState<number>(0);
+      const [dialogDetail, setDialogDetail] = useState<UserReportDetailDialog>({
+        isOpen: false,
+        detail: {
+          _id: "rpt001",
+          reportType: "user",
+          user: {
+            _id: "user001",
+            fullName: "Nguyễn Văn A",
+            email: "vana@example.com",
+            avatar: "https://example.com/avatar1.jpg",
+            phoneNumber: "0901234567",
+            bio: "Tôi yêu động vật",
+            dob: "2000-05-20T00:00:00.000Z",
+            address: "Hà Nội",
+            location: { lat: 21.0278, lng: 105.8342 },
+            createdAt: new Date("2024-12-01T10:00:00.000Z"),
+            updatedAt: new Date("2025-01-01T10:00:00.000Z"),
+            background: "https://example.com/bg1.jpg",
+          },
+          reportedBy: {
+            _id: "user002",
+            fullName: "Trần Thị B",
+            email: "tranb@example.com",
+            avatar: "https://example.com/avatar2.jpg",
+          },
+          reviewedBy: {
+            _id: "admin001",
+            fullName: "Admin Kiểm Duyệt",
+            email: "admin@example.com",
+            avatar: "https://example.com/admin.jpg",
+          },
+          reason: "Tài khoản có hành vi spam.",
+          photos: [],
+          status: "approved",
+          createdAt: new Date("2025-07-01T08:00:00.000Z"),
+          updatedAt: new Date("2025-07-01T09:00:00.000Z"),
+        },
+      });
+    const {handleApproveUserReport, handleRejectUserReport} = HandleReport({reportData: dialogDetail});
+
+      // useEffect(() => {
+      //   authAxios.get(`${donationAPI}/get-all`)
+      //   .then(({data}) => console.log(data)) 
+      //   .catch((err) => console.log(err?.response.data.message))
+      // }, [])
+
+      const columns: ColumnDef<ReportTableData>[] = [
+        {
+          header: "STT",
+          cell: ({ row, table }) => {
+            const pageIndex = table.getState().pagination.pageIndex;
+            const pageSize = table.getState().pagination.pageSize;
+            return (
+              <p className="text-center">
+                {pageIndex * pageSize + row.index + 1}
+              </p>
+            );
+          },
+        },
+        {
+          accessorKey: "reportedBy",
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="cursor-pointer"
+              >
+                Báo cáo bởi
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            );
+          },
+          cell: ({ row }) => {
+            return <p className='flex'>
+              <Avatar>
+                <AvatarImage src={row.original.reportedBy.avatar} alt={row.original.reportedBy.fullName} />
+              </Avatar>
+              <span>{row.original.reportedBy.fullName}</span>
+            </p>;
+          },
+        },
+        {
+          accessorKey: "reason",
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="cursor-pointer"
+              >
+                Lý do
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            );
+          },
+          cell: ({ row }) => {
+            return <p className='px-2'>{row.original.reason}</p>;
+          },
+        },
+        {
+          accessorKey: "status",
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="cursor-pointer"
+              >
+                Trạng thái
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            );
+          },
+          cell: ({ row }) => {
+            if(row.original.status === "pending"){
+                return <Badge variant="default">Chờ xử lý</Badge>;
+            }else if(row.original.status === "aprroved"){
+                return <Badge variant="outline" className='bg-green-500 text-white'>Chấp thuận</Badge>;
+            }else{
+                return <Badge variant="destructive">Từ chối</Badge>;
+            }
+            
+          },
+        },
+        {
+          accessorKey: "createdAt",
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="cursor-pointer"
+              >
+                Ngày tạo
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            );
+          },
+          cell: ({ row }) => (
+            <span className="px-2">
+              {new Date(row.original.createdAt).toLocaleDateString("vi-VN")}
+            </span>
+          ),
+        },
+        {
+          id: "actions",
+          cell: ({ row }) => (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="w-40 rounded-md border bg-background shadow-lg p-1"
+              >
+                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                  onClick={() => {
+                    setDialogDetail({detail: {...row.original}, isOpen: true})
+                  }}
+                    className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
+                  >
+                    <NotebookText className="w-4 h-4" /> Xem thông tin chi tiết
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ),
+        },
+      ];
+
+  // hien thi preview anh
+    if (isPreview) {
+        return (
+    dialogDetail.detail.photos &&
+    dialogDetail.detail.photos.length > 0 && (
+    <Lightbox
+    open={isPreview}
+    index={currentIndex}
+    close={() => setIsPreview(false)}
+    slides={dialogDetail.detail.photos.map((src) => ({ src }))}
+    plugins={[Zoom]}
+    />
+    )
+    );
+    }
+
+
+  return (
+    <div className="flex flex-1 flex-col px-20 py-10">
+      <div className="@container/main flex flex-1 flex-col gap-2">
+        <div className="col-span-12 px-5 flex flex-col gap-5">
+          <h4 className="scroll-m-20 min-w-40 text-xl font-semibold tracking-tight text-center">
+            Danh sách báo cáo tài khoản
+          </h4>
+        </div>
+        <div className="col-span-12 px-5">
+        <Badge variant="destructive" className="mx-auto p-2">Báo cáo tài khoản chờ xử lý: 12</Badge>
+          <DataTable columns={columns} data={mockReportData ?? []} />
+        </div>
+      </div>
+
+      <UserReportDetailDialogUI
+        dialogDetail={dialogDetail}
+        setDialogDetail={setDialogDetail}
+        handleAprroveReport={handleApproveUserReport}
+        handleRejectReport={handleRejectUserReport}
+        loading={loading}
+        setCurrentIndex={setCurrentIndex}
+        setIsPreview={setIsPreview}
+      />
+    </div>
+  );
+}
+
+export default UserReportManagemnt;
