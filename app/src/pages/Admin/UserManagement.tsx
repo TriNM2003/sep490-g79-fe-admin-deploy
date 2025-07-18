@@ -303,7 +303,7 @@ const UserManagement = () => {
               return (
                 <Button
                   variant="destructive"
-                  className="mx-auto cursor-pointer"
+                  className=" mx-auto cursor-pointer"
                 >
                   Quản trị <ChevronDown />
                 </Button>

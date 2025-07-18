@@ -53,7 +53,7 @@ const BlogTable = ({
                 alt={row.original.shelter.name}
               />
             </Avatar>
-            <p className="my-auto">{row.original.shelter.name}</p>
+            <span className="my-auto">{row.original.shelter.name}</span>
           </p>
         );
       },

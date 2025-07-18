@@ -19,19 +19,7 @@ const ShelterManagement = () => {
   return (
     <PhotoProvider>
       <div className="flex flex-1 flex-col">
-        <Breadcrumb className="container mb-3 py-1 px-2">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/admin/dashboard">Admin</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="#">Quản lý trạm cứu hộ</BreadcrumbLink>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-
-        <div className="@container/main flex flex-1 flex-col gap-2">
+        <div className="@container/main mt-10">
           <Tabs defaultValue="shelters">
             <TabsList className="w-[400px]">
               <TabsTrigger value="shelters" className='cursor-pointer'>Tất cả trạm cứu hộ</TabsTrigger>
