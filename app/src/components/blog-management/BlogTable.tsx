@@ -53,7 +53,7 @@ const BlogTable = ({
                 alt={row.original.shelter.name}
               />
             </Avatar>
-            <span className="my-auto">{row.original.shelter.name}</span>
+            <span className="my-auto max-w-[7vw] truncate">{row.original.shelter.name}</span>
           </p>
         );
       },
@@ -99,7 +99,7 @@ const BlogTable = ({
         );
       },
       cell: ({ row }) => {
-        return <p className="truncate">{row.original.title}</p>;
+        return <p className="max-w-[13vw] truncate">{row.original.title}</p>;
       },
     },
     {

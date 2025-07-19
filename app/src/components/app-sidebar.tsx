@@ -1,8 +1,10 @@
 import * as React from "react"
 import {
   IconArticle,
+  IconBone,
   IconBusinessplan,
   IconCamera,
+  IconCat,
   IconChartBar,
   IconDashboard,
   IconDatabase,
@@ -61,6 +63,16 @@ const data = {
       title: "Quản lý blog",
       url: "/admin/blog",
       icon: IconArticle,
+    },
+        {
+      title: "Quản lý loài của thú cưng",
+      url: "/admin/species",
+      icon: IconCat,
+    },
+        {
+      title: "Quản lý giống của thú cưng",
+      url: "/admin/breed",
+      icon: IconBone,
     },
     {
       title: "Quản lý báo cáo",
@@ -131,23 +143,23 @@ const data = {
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Chỉnh sửa hệ thống",
-      url: "#",
-      icon: IconSettings,
-    },
-    // {
-    //   title: "Get Help",
-    //   url: "#",
-    //   icon: IconHelp,
-    // },
-    // {
-    //   title: "Search",
-    //   url: "#",
-    //   icon: IconSearch,
-    // },
-  ],
+  // navSecondary: [
+  //   {
+  //     title: "Chỉnh sửa hệ thống",
+  //     url: "#",
+  //     icon: IconSettings,
+  //   },
+  //   {
+  //     title: "Get Help",
+  //     url: "#",
+  //     icon: IconHelp,
+  //   },
+  //   {
+  //     title: "Search",
+  //     url: "#",
+  //     icon: IconSearch,
+  //   },
+  // ],
   documents: [
     {
       name: "Data Library",

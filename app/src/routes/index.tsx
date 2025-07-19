@@ -12,6 +12,8 @@ import Login from '@/pages/Common/Login'
 import Layout from "@/components/layouts/layout";
 import UserReportManagemnt from "@/components/report-management/UserReportManagement";
 import PostReportManagement from "@/components/report-management/PostReportManagement";
+import BreedManagement from "@/pages/Admin/BreedManagement";
+import SpeciesManagement from "@/pages/Admin/SpeciesManagement";
 
 function AppRoutes() {
   return (
@@ -28,6 +30,8 @@ function AppRoutes() {
           <Route path="user" element={<UserManagement />} />
           <Route path="blog" element={<BlogManagement />} />
           <Route path="donation" element={<DonationManagement />} />
+          <Route path="breed" element={<BreedManagement />} />
+          <Route path="species" element={<SpeciesManagement />} />
 
           <Route path="report" element={<ReportManagement />}>
             <Route index element={<UserReportManagemnt />} />

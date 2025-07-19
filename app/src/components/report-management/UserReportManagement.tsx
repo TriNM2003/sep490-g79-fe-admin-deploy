@@ -18,49 +18,10 @@ import UserReportDetailDialogUI from './ui/UserReportDetailDialog';
 import HandleReport from './logic/HandleReport';
 
 
-export const mockReportData: ReportTableData[] = [
-  {
-    _id: "rpt001",
-    reportType: "user",
-    user: {
-      _id: "user001",
-      fullName: "Nguyễn Văn A",
-      email: "vana@example.com",
-      avatar: "https://noidangsong.vn/files/uploads/fb1735058496563345/1526444239-tt_avatar_small.jpg",
-      phoneNumber: "0901234567",
-      bio: "Tôi yêu động vật",
-      dob: "2000-05-20T00:00:00.000Z",
-      address: "Hà Nội",
-      location: { lat: 21.0278, lng: 105.8342 },
-      createdAt: new Date("2024-12-01T10:00:00.000Z"),
-      updatedAt: new Date("2025-01-01T10:00:00.000Z"),
-      background: "https://example.com/bg1.jpg"
-    },
-    reportedBy: {
-      _id: "user002",
-      fullName: "Trần Thị B",
-      email: "tranb@example.com",
-      avatar: "https://dnm.nflximg.net/api/v6/2DuQlx0fM4wd1nzqm5BFBi6ILa8/AAAAQWSCUCGDxcednipve9CFJbfZavd0HMi-_QlsgVjzHnr6lo578CSoz_Z-76uPz-kLATAD9YseSROMjXhDkeboMuZ1qBIYDVnYdwHo1Xnv08aj20W34wcDOTPGSmBpbdrMaz30WdLIjrNaIdcRzInRtp9FvRE.jpg?r=2a6",
-    },
-    reviewedBy: {
-      _id: "admin001",
-      fullName: "Admin Kiểm Duyệt",
-      email: "admin@example.com",
-      avatar: "https://noidangsong.vn/files/uploads/fb1735058496563345/1526444239-tt_avatar_small.jpg"
-    },
-    reason: "Tài khoản có hành vi spam.",
-    photos: ["https://images.squarespace-cdn.com/content/v1/54822a56e4b0b30bd821480c/45ed8ecf-0bb2-4e34-8fcf-624db47c43c8/Golden+Retrievers+dans+pet+care.jpeg", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Labrador_Retriever_portrait.jpg/1200px-Labrador_Retriever_portrait.jpg"],
-    status: "approved",
-    createdAt: new Date("2025-07-01T08:00:00.000Z"),
-    updatedAt: new Date("2025-07-01T09:00:00.000Z")
-  },
-];
-
-
 const UserReportManagemnt = () => {
-      const [donationData, setDonationData] = useState<DonationTableData[]>([]);
-      const [filteredDonations, setFilteredDonations] = useState<DonationTableData[]>([]);
-      // const {userAPI, donationAPI} = useContext(AppContext);
+      const [userReports, setUserReports] = useState<ReportTableData[]>([]);
+      const [filteredUserReports, setFilteredUserReports] = useState<ReportTableData[]>([]);
+      const {reportAPI} = useContext(AppContext);
       const authAxios = useAuthAxios();
       const [loading, setLoading] = useState<boolean>(false);
       const [donationRefresh, setDonationRefresh] = useState<boolean>(false);
@@ -106,11 +67,15 @@ const UserReportManagemnt = () => {
       });
     const {handleApproveUserReport, handleRejectUserReport} = HandleReport({reportData: dialogDetail});
 
-      // useEffect(() => {
-      //   authAxios.get(`${donationAPI}/get-all`)
-      //   .then(({data}) => console.log(data)) 
-      //   .catch((err) => console.log(err?.response.data.message))
-      // }, [])
+      useEffect(() => {
+        authAxios.get(`${reportAPI}/get-pending-user-reports`)
+        .then(({data}) => {
+          console.log(data)
+          setUserReports(data);
+          setFilteredUserReports(data);
+        }) 
+        .catch((err) => console.log(err?.response.data.message))
+      }, [])
 
       const columns: ColumnDef<ReportTableData>[] = [
         {
@@ -123,6 +88,33 @@ const UserReportManagemnt = () => {
                 {pageIndex * pageSize + row.index + 1}
               </p>
             );
+          },
+        },
+        {
+          accessorKey: "user",
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="cursor-pointer"
+              >
+                Tài khoản
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            );
+          },
+          cell: ({ row }) => {
+            return <p className='flex gap-2'>
+              {row.original.user && <>
+                <Avatar>
+                  <AvatarImage src={row.original.user.avatar} alt={row.original.user.fullName} />
+                </Avatar>
+                <span className='my-auto'>{row.original.user.fullName}</span>
+              </>}
+            </p>;
           },
         },
         {
@@ -142,11 +134,11 @@ const UserReportManagemnt = () => {
             );
           },
           cell: ({ row }) => {
-            return <p className='flex'>
+            return <p className='flex gap-2'>
               <Avatar>
                 <AvatarImage src={row.original.reportedBy.avatar} alt={row.original.reportedBy.fullName} />
               </Avatar>
-              <span>{row.original.reportedBy.fullName}</span>
+              <span className='my-auto'>{row.original.reportedBy.fullName}</span>
             </p>;
           },
         },
@@ -275,8 +267,7 @@ const UserReportManagemnt = () => {
           </h4>
         </div>
         <div className="col-span-12 px-5">
-        <Badge variant="destructive" className="mx-auto p-2">Báo cáo tài khoản chờ xử lý: 12</Badge>
-          <DataTable columns={columns} data={mockReportData ?? []} />
+          <DataTable columns={columns} data={filteredUserReports ?? []} />
         </div>
       </div>
 

@@ -29,31 +29,12 @@ export interface ReportPost {
   updatedAt?: Date;
 }
 
-// ---------- Blog ----------
-export interface ReportBlog {
-  _id: string;
-  title: string;
-  description?: string;
-  content: string;
-  thumbnail_url: string;
-  status: string;
-  shelter: {
-    _id: string;
-    name: string;
-    avatar?: string;
-    address?: string;
-    warningCount?: number;
-  };
-  createdAt?: Date;
-  updatedAt?: Date;
-}
 
 export default interface ReportTableData {
   _id: string;
   reportType: string;
   user?: ReportUser;   // nếu báo cáo người dùng
   post?: ReportPost;   // nếu báo cáo bài viết
-  blog?:ReportBlog;   // nếu báo cáo blog
   reportedBy: ReportUser;
   reviewedBy?: ReportUser;
   reason: string;

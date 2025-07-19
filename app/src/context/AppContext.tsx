@@ -15,6 +15,9 @@ interface AppContextType {
   shelterAPI: string;
   donationAPI: string;
   blogAPI: string;
+  reportAPI: string;
+  breedAPI: string;
+  speciesAPI: string;
   userProfile: User | null;
   login: (accessToken: string, userData: User) => void;
   logout: () => void;
@@ -29,6 +32,9 @@ const AppContext = createContext<AppContextType>({
   shelterAPI: "",
   donationAPI: "",
   blogAPI: "",
+  reportAPI: "",
+  breedAPI: "string",
+  speciesAPI: "string",
   userProfile: null,
   login: () => {},
   logout: () => {},
@@ -48,6 +54,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const shelterAPI = 'http://localhost:9999/shelters/admin';
   const donationAPI = 'http://localhost:9999/donation/admin';
   const blogAPI = 'http://localhost:9999/blogs/admin';
+  const reportAPI = 'http://localhost:9999/reports/admin';
+  const breedAPI = 'http://localhost:9999/breeds/admin';
+  const speciesAPI = 'http://localhost:9999/species/admin';
 
 
   const login = (accessToken: string, userData: User) => {
@@ -94,6 +103,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         shelterAPI,
         donationAPI,
         blogAPI,
+        reportAPI,
+        breedAPI,
+        speciesAPI,
         userProfile,
         login,
         logout,
