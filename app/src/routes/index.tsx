@@ -28,7 +28,7 @@ function AppRoutes() {
           <Route index element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="user" element={<UserManagement />} />
-          <Route path="blog" element={<BlogManagement />} />
+          {/* <Route path="blog" element={<BlogManagement />} /> */}
           <Route path="donation" element={<DonationManagement />} />
           <Route path="breed" element={<BreedManagement />} />
           <Route path="species" element={<SpeciesManagement />} />

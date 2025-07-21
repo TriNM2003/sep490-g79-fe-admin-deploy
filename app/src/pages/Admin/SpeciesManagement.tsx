@@ -1,31 +1,40 @@
 import { DataTable } from '@/components/data-table'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import AppContext from '@/context/AppContext';
-import type { Breed } from '@/types/Breed';
-import type { DonationTableData } from '@/types/DonationTableData';
+import { cn } from '@/lib/utils';
 import { type Species } from '@/types/Species';
-import type { User } from '@/types/User';
 import useAuthAxios from '@/utils/authAxios';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Bone, Crown, MoreHorizontal, NotebookText, Trash } from 'lucide-react';
+import { RowExpanding, type ColumnDef } from '@tanstack/react-table';
+import { Command } from 'cmdk';
+import { ArrowDown, ArrowRight, ArrowUpDown, Bone, Check, ChevronsUpDown, Crown, MoreHorizontal, MoveRight, NotebookText, Trash } from 'lucide-react';
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
 const speciesSchema = z.object({
-    name: z.string().min(1, "Tên loài không được để trống !").max(20, "Tên loài không được quá 20 kí tự !"),
-    description: z.string().min(1, "Miêu tả loài không được để trống !").max(100, "Miêu tả loài không được quá 100 kí tự !")
-  })
+  name: z
+    .string()
+    .trim()
+    .min(2, "Tên loài không được để trống!")
+    .max(20, "Tên loài không được quá 20 kí tự!"),
+
+  description: z
+    .string()
+    .trim()
+    .max(100, "Miêu tả loài không được quá 100 kí tự!")
+    .optional()
+    .or(z.literal("")), // cho phép chuỗi rỗng
+});
 
 const SpeciesManagement = () => {
     const [species, setSpecies] = useState<Species[]>([]);
@@ -34,6 +43,11 @@ const SpeciesManagement = () => {
     const authAxios = useAuthAxios();
     const {speciesAPI} = useContext(AppContext);
     const [refresh, setRefresh] = useState<boolean>(false);
+    const [createDialog, setCreateDialog] = useState<boolean>(false);
+    const [detailDialog, setDetailDialog] = useState<Species | null>(null);
+    const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(null);
+    const [selectedDifferentSpecies, setSelectedDifferentSpecies] = useState<string>("");
+    const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 
     const form = useForm<z.infer<typeof speciesSchema>>({
       resolver: zodResolver(speciesSchema),
@@ -79,16 +93,41 @@ const SpeciesManagement = () => {
             })
 
             toast.success("Tạo thêm loài thành công!")
+            setCreateDialog(false);
             setRefresh(prev => !prev)
         } catch (error : any) {
             toast.error(error?.response.data.message)
         }
       }
-      const handleDelete = async (breedId: string) => {
+
+      const handleEdit = async (values: z.infer<typeof speciesSchema>) => {
         try {
-            await authAxios.delete(`${speciesAPI}/delete/${breedId}`)
+            const {name, description} = values;
+            await authAxios.put(`${speciesAPI}/edit`, {
+                speciesId: detailDialog?._id,
+                name,
+                description
+            })
+
+            toast.success("Chỉnh sửa loài thành công!")
+            setDetailDialog(null);
+            form.reset();
+            setRefresh(prev => !prev)
+        } catch (error : any) {
+            toast.error(error?.response.data.message)
+        }
+      }
+
+      const handleDelete = async (speciesId: string, differentSpeciesId: string) => {
+        try {
+            if(!differentSpeciesId || differentSpeciesId.length < 1){
+              toast.error("Chưa chọn loài khác để chuyển thú cưng sang")
+              return;
+            }
+            await authAxios.delete(`${speciesAPI}/delete/${speciesId}/${differentSpeciesId}`)
 
             toast.success("Xóa loài thành công!")
+            setSelectedSpecies(null);
             setRefresh(prev => !prev)
         } catch (error : any) {
             toast.error(error?.response.data.message)
@@ -99,13 +138,7 @@ const SpeciesManagement = () => {
         {
           header: "STT",
           cell: ({ row, table }) => {
-            const pageIndex = table.getState().pagination.pageIndex;
-            const pageSize = table.getState().pagination.pageSize;
-            return (
-              <p className="text-center">
-                {pageIndex * pageSize + row.index + 1}
-              </p>
-            );
+            return <p className="text-left ms-2">{row.index + 1}</p>;
           },
         },
         {
@@ -124,7 +157,7 @@ const SpeciesManagement = () => {
               </Button>
             );
           },
-          cell: ({ row }) => row.original?.name,
+          cell: ({ row }) => <p className="ms-2">{row.original?.name}</p>,
         },
         {
           accessorKey: "description",
@@ -187,34 +220,29 @@ const SpeciesManagement = () => {
               >
                 <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                 <DropdownMenuGroup>
-                  <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded">
-                    <NotebookText className="w-4 h-4" /> Xem thông tin chi tiết
+                  <DropdownMenuItem
+                    className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
+                    onClick={() => {
+                      setDetailDialog(row.original)
+                      form.reset({
+                        name: row.original.name,
+                        description: row.original.description
+                      })
+                    }}
+                  >
+                    Chỉnh sửa
                   </DropdownMenuItem>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <DropdownMenuItem
-                        onClick={() => handleDelete(row.original._id)}
-                        className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
-                      >
-                        <Trash className="w-4 h-4" /> Xóa loài
-                      </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Xác nhận xóa loài ?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Khi xóa loài này khỏi hệ thống, các thú cưng thuộc
-                          loài này sẽ ...
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Hủy</AlertDialogCancel>
-                        <AlertDialogAction>Xác nhận xóa</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedSpecies(row.original);
+                        setOpenDeleteDialog(true)
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
+                    >
+                      Xóa loài
+                    </DropdownMenuItem>
+                 
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -237,17 +265,23 @@ const SpeciesManagement = () => {
               placeholder="Tìm kiếm..."
             />
             <Dialog
+              open={createDialog}
               onOpenChange={(isOpen) => {
                 if (!isOpen) {
-                  form.reset(); // reset mỗi khi Dialog đóng
+                  setCreateDialog(false);
+                  form.reset();
                 }
               }}
             >
-              <DialogTrigger asChild>
-                <Button className="cursor-pointer">
-                  <Bone /> Thêm loài mới
-                </Button>
-              </DialogTrigger>
+              <Button
+                className="cursor-pointer"
+                onClick={() => {
+                  form.reset({ name: "", description: "" });
+                  setCreateDialog(true)
+                }}
+              >
+                <Bone /> Thêm loài mới
+              </Button>
               <DialogContent className="sm:max-w-[425px]">
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(handleCreate)}>
@@ -279,7 +313,6 @@ const SpeciesManagement = () => {
                         <FormItem className="py-4">
                           <FormLabel>
                             Miêu tả loài
-                            <span className="text-destructive">*</span>
                           </FormLabel>
                           <FormControl>
                             <Textarea {...field} placeholder="Miêu tả loài" />
@@ -289,11 +322,14 @@ const SpeciesManagement = () => {
                       )}
                     />
                     <DialogFooter>
-                      <DialogClose asChild>
-                        <Button variant="outline" className="cursor-pointer">
-                          Đóng
-                        </Button>
-                      </DialogClose>
+                      <Button
+                        variant="outline"
+                        className="cursor-pointer"
+                        type="button"
+                        onClick={() => setCreateDialog(false)}
+                      >
+                        Đóng
+                      </Button>
                       <Button type="submit" className="cursor-pointer">
                         Thêm loài
                       </Button>
@@ -307,6 +343,138 @@ const SpeciesManagement = () => {
         <div>
           <DataTable columns={columns} data={filteredSpecies ?? []} />
         </div>
+        <Dialog
+          open={detailDialog !== null}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) {
+              setDetailDialog(null);
+            }
+          }}
+        >
+          <DialogContent className="sm:min-w-xl">
+            <DialogHeader>
+              <DialogTitle>Thông tin loài</DialogTitle>
+              <DialogDescription></DialogDescription>
+            </DialogHeader>
+
+            <Form {...form}>
+                  <form onSubmit={form.handleSubmit(handleEdit)}>
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem className="py-4">
+                          <FormLabel>
+                            Tên loài<span className="text-destructive">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Fox sóc" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem className="py-4">
+                          <FormLabel>
+                            Miêu tả loài
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea {...field} placeholder="Miêu tả loài" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        className="cursor-pointer"
+                        type="button"
+                        onClick={() => {
+                          setDetailDialog(null)
+                          form.reset();
+                        }}
+                      >
+                        Đóng
+                      </Button>
+                      <Button type="submit" className="cursor-pointer">
+                        Lưu thay đổi
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+          </DialogContent>
+        </Dialog>
+
+        <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xác nhận xóa loài</AlertDialogTitle>
+              <AlertDialogDescription>
+                Chọn loài khác để tạm thời chuyển những thú cưng thuộc loài đã xóa sang loài khác vì mỗi thú cưng phải thuộc ít nhất một loài:
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className='grid grid-cols-1 sm:grid-cols-3'>
+              <Button variant="outline" className="justify-between" disabled>
+                  {selectedSpecies?.name}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                </Button>
+              <MoveRight strokeWidth={1} className='my-auto mx-auto'/>
+              <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="justify-between">
+                  {selectedDifferentSpecies
+                    ? species.find((s) => s._id === selectedDifferentSpecies)
+                        ?.name
+                    : "Chọn loài"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-0">
+                <Command>
+                  <CommandInput placeholder="Tìm loài..." />
+                  <CommandList>
+                    <CommandEmpty>Không tìm thấy loài</CommandEmpty>
+                    <CommandGroup>
+                      {species.filter((s) => s._id !== selectedSpecies?._id).map((item) => (
+                        <CommandItem
+                          key={item._id}
+                          value={item.name}
+                          onSelect={() => setSelectedDifferentSpecies(item._id)}
+                        >
+                          {item.name}
+                          <Check
+                            className={cn(
+                              "ml-auto",
+                              item._id === selectedDifferentSpecies
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            </div>
+          
+
+            <AlertDialogFooter>
+              <AlertDialogCancel>Hủy</AlertDialogCancel>
+              <AlertDialogAction onClick={() => {
+                selectedSpecies?._id ? handleDelete(selectedSpecies?._id, selectedDifferentSpecies) : toast.error("Chưa chọn loài khác để chuyển thú cưng sang");
+              }}>
+                Xác nhận xóa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

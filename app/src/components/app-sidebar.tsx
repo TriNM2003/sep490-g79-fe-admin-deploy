@@ -59,11 +59,11 @@ const data = {
       url: "/admin/user",
       icon: IconUsers,
     },
-    {
-      title: "Quản lý blog",
-      url: "/admin/blog",
-      icon: IconArticle,
-    },
+    // {
+    //   title: "Quản lý blog",
+    //   url: "/admin/blog",
+    //   icon: IconArticle,
+    // },
         {
       title: "Quản lý loài của thú cưng",
       url: "/admin/species",

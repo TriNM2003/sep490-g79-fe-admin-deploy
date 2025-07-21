@@ -3,12 +3,15 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import AppContext from '@/context/AppContext';
+import { cn } from '@/lib/utils';
 import type { Breed } from '@/types/Breed';
 import type { DonationTableData } from '@/types/DonationTableData';
 import { type Species } from '@/types/Species';
@@ -16,16 +19,16 @@ import type { User } from '@/types/User';
 import useAuthAxios from '@/utils/authAxios';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Bone, Crown, MoreHorizontal, NotebookText, Trash } from 'lucide-react';
+import { ArrowUpDown, Bone, Check, ChevronsUpDown, Crown, MoreHorizontal, NotebookText, Trash } from 'lucide-react';
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
 const breedSchema = z.object({
-    speciesId: z.string().min(1, "Vui lòng chọn loài!"),
-    name: z.string().min(1, "Tên giống không được để trống !").max(20, "Tên giống không được quá 20 kí tự !"),
-    description: z.string().min(1, "Tên giống không được để trống !").max(20, "Tên giống không được quá 20 kí tự !")
+    speciesId: z.string().min(2, "Vui lòng chọn loài!"),
+    name: z.string().min(2, "Tên giống không được để trống !").max(20, "Tên giống không được quá 20 kí tự !"),
+    description: z.string().min(2, "Tên giống không được để trống !").max(100, "Miêu tả giống không được quá 100 kí tự !")
   })
 
 const BreedManagement = () => {
@@ -36,6 +39,9 @@ const BreedManagement = () => {
     const authAxios = useAuthAxios();
     const {breedAPI, speciesAPI} = useContext(AppContext);
     const [refresh, setRefresh] = useState<boolean>(false);
+    const [createDialog, setCreateDialog] = useState<boolean>(false);
+    const [detailDialog, setDetailDialog] = useState<Breed | null>(null);
+    
 
     const form = useForm<z.infer<typeof breedSchema>>({
       resolver: zodResolver(breedSchema),
@@ -88,11 +94,41 @@ const BreedManagement = () => {
             })
 
             toast.success("Tạo thêm giống thành công!")
+            setCreateDialog(false);
+            form.reset({
+              speciesId: "",
+              name: "",
+              description: "",
+            });
             setRefresh(prev => !prev)
         } catch (error : any) {
             toast.error(error?.response.data.message)
         }
       }
+
+      const handleEdit = async (values: z.infer<typeof breedSchema>) => {
+        try {
+          const {speciesId, name, description } = values;
+          await authAxios.put(`${breedAPI}/edit`, {
+            breedId: detailDialog?._id,
+            speciesId,
+            name,
+            description,
+          });
+
+          toast.success("Chỉnh sửa giống thành công!");
+          setDetailDialog(null);
+          form.reset({
+            speciesId: "",
+            name: "",
+            description: "",
+          });
+          setRefresh((prev) => !prev);
+        } catch (error: any) {
+          toast.error(error?.response.data.message);
+        }
+      };
+
       const handleDelete = async (breedId: string) => {
         try {
             await authAxios.delete(`${breedAPI}/delete/${breedId}`)
@@ -118,24 +154,6 @@ const BreedManagement = () => {
           },
         },
         {
-          accessorKey: "species",
-          header: ({ column }) => {
-            return (
-              <Button
-                variant="ghost"
-                onClick={() =>
-                  column.toggleSorting(column.getIsSorted() === "asc")
-                }
-                className="cursor-pointer"
-              >
-                Thuộc loài
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            );
-          },
-          cell: ({ row }) => row.original?.species.name,
-        },
-        {
           accessorKey: "name",
           header: ({ column }) => {
             return (
@@ -151,7 +169,7 @@ const BreedManagement = () => {
               </Button>
             );
           },
-          cell: ({ row }) => row.original?.name,
+          cell: ({ row }) => <p className="ms-2">{row.original?.name}</p>,
         },
         {
           accessorKey: "description",
@@ -178,6 +196,26 @@ const BreedManagement = () => {
           },
         },
         {
+          accessorKey: "species",
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="cursor-pointer"
+              >
+                Thuộc loài
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            );
+          },
+          cell: ({ row }) => (
+            <p className="ms-2">{row.original?.species.name}</p>
+          ),
+        },
+        {
           accessorKey: "createdAt",
           header: ({ column }) => {
             return (
@@ -188,7 +226,7 @@ const BreedManagement = () => {
                 }
                 className="cursor-pointer"
               >
-                Ngày quyên góp
+                Ngày tạo
                 <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             );
@@ -214,34 +252,33 @@ const BreedManagement = () => {
               >
                 <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                 <DropdownMenuGroup>
-                  <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded">
-                    <NotebookText className="w-4 h-4" /> Xem thông tin chi tiết
+                  <DropdownMenuItem
+                    className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
+                    onClick={() => {
+                        form.reset({
+                            speciesId: row.original.species._id,
+                            name: row.original.name,
+                            description: row.original.description
+                        })
+                        setDetailDialog(row.original)
+                    }}
+                  >
+                    Chỉnh sửa
                   </DropdownMenuItem>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <DropdownMenuItem
-                        onClick={() => handleDelete(row.original._id)}
-                        className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
-                      >
-                        <Trash className="w-4 h-4" /> Xóa giống
-                      </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Xác nhận xóa giống ?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Khi xóa giống này khỏi hệ thống, các thú cưng thuộc
-                          giống này sẽ ...
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Hủy</AlertDialogCancel>
-                        <AlertDialogAction>Xác nhận xóa</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      toast("Bạn chắc chắn muốn xóa giống này ?", {
+                        description: "",
+                        action: {
+                          label: "Xóa",
+                          onClick: () => handleDelete(row.original._id),
+                        },
+                      })
+                    }
+                    className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
+                  >
+                    Xóa giống
+                  </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -264,17 +301,20 @@ const BreedManagement = () => {
               placeholder="Tìm kiếm..."
             />
             <Dialog
+              open={createDialog}
               onOpenChange={(isOpen) => {
                 if (!isOpen) {
+                  setCreateDialog(false);
                   form.reset(); // reset mỗi khi Dialog đóng
                 }
               }}
             >
-              <DialogTrigger asChild>
-                <Button className="cursor-pointer">
-                  <Bone /> Thêm giống mới
-                </Button>
-              </DialogTrigger>
+              <Button
+                className="cursor-pointer"
+                onClick={() => setCreateDialog(true)}
+              >
+                <Bone /> Thêm giống mới
+              </Button>
               <DialogContent className="sm:max-w-[425px]">
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(handleCreate)}>
@@ -292,9 +332,63 @@ const BreedManagement = () => {
                           <FormLabel>
                             Loài<span className="text-destructive">*</span>
                           </FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="Loài" />
-                          </FormControl>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    "w-[15vw] justify-between",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value
+                                    ? species.find(
+                                        (item) => item._id === field.value
+                                      )?.name
+                                    : "Chọn loài"}
+                                  <ChevronsUpDown className="opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+
+                            <PopoverContent className="w-[200px] p-0">
+                              <Command>
+                                <CommandInput
+                                  placeholder="Tìm loài..."
+                                  className="h-9"
+                                />
+                                <CommandList>
+                                  <CommandEmpty>
+                                    Không tìm thấy loài
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    {species.map((item) => (
+                                      <CommandItem
+                                        key={item._id}
+                                        value={item.name} // search theo name
+                                        onSelect={() => {
+                                          form.setValue("speciesId", item._id); // chọn _id
+                                        }}
+                                      >
+                                        {item.name}
+                                        <Check
+                                          className={cn(
+                                            "ml-auto",
+                                            item._id === field.value
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+
                           <FormMessage />
                         </FormItem>
                       )}
@@ -331,11 +425,14 @@ const BreedManagement = () => {
                       )}
                     />
                     <DialogFooter>
-                      <DialogClose asChild>
-                        <Button variant="outline" className="cursor-pointer">
-                          Đóng
-                        </Button>
-                      </DialogClose>
+                      <Button
+                        variant="outline"
+                        className="cursor-pointer"
+                        onClick={() => setCreateDialog(false)}
+                        type="button"
+                      >
+                        Đóng
+                      </Button>
                       <Button type="submit" className="cursor-pointer">
                         Thêm giống
                       </Button>
@@ -349,6 +446,145 @@ const BreedManagement = () => {
         <div>
           <DataTable columns={columns} data={filteredBreeds ?? []} />
         </div>
+        <Dialog
+          open={detailDialog !== null}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) {
+              setDetailDialog(null);
+            }
+          }}
+        >
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Thông tin giống</DialogTitle>
+              <DialogDescription></DialogDescription>
+            </DialogHeader>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleEdit)}>
+
+                <FormField
+                      control={form.control}
+                      name="speciesId"
+                      render={({ field }) => (
+                        <FormItem className="py-4">
+                          <FormLabel>
+                            Loài<span className="text-destructive">*</span>
+                          </FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    "w-[15vw] justify-between",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value
+                                    ? species.find(
+                                        (item) => item._id === field.value
+                                      )?.name
+                                    : "Chọn loài"}
+                                  <ChevronsUpDown className="opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+
+                            <PopoverContent className="w-[200px] p-0">
+                              <Command>
+                                <CommandInput
+                                  placeholder="Tìm loài..."
+                                  className="h-9"
+                                />
+                                <CommandList>
+                                  <CommandEmpty>
+                                    Không tìm thấy loài
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    {species.map((item) => (
+                                      <CommandItem
+                                        key={item._id}
+                                        value={item.name} // search theo name
+                                        onSelect={() => {
+                                          form.setValue("speciesId", item._id); // chọn _id
+                                        }}
+                                      >
+                                        {item.name}
+                                        <Check
+                                          className={cn(
+                                            "ml-auto",
+                                            item._id === field.value
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="py-4">
+                      <FormLabel>
+                        Tên giống<span className="text-destructive">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Fox sóc" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="py-4">
+                      <FormLabel>Miêu tả giống</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} placeholder="Miêu tả loài" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    className="cursor-pointer"
+                    type="button"
+                    onClick={() => {
+                      setDetailDialog(null);
+                      form.reset({
+                        speciesId: "",
+                        name: "",
+                        description: ""
+                      });
+                    }}
+                  >
+                    Đóng
+                  </Button>
+                  <Button type="submit" className="cursor-pointer">
+                    Lưu thay đổi
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
