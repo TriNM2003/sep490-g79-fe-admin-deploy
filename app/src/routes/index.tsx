@@ -10,10 +10,11 @@ import ShelterManagement from '@/pages/Admin/ShelterManagement'
 import UserManagement from '@/pages/Admin/UserManagement'
 import Login from '@/pages/Common/Login'
 import Layout from "@/components/layouts/layout";
-import UserReportManagemnt from "@/components/report-management/UserReportManagement";
-import PostReportManagement from "@/components/report-management/PostReportManagement";
+import UserReportManagement from "@/components/report-management/report-user/UserReportManagement";
+import PostReportManagement from "@/components/report-management/report-post/PostReportManagement";
 import BreedManagement from "@/pages/Admin/BreedManagement";
 import SpeciesManagement from "@/pages/Admin/SpeciesManagement";
+import BlogReportManagemnt from "@/components/report-management/report-blog/BlogReportManagement";
 
 function AppRoutes() {
   return (
@@ -34,9 +35,10 @@ function AppRoutes() {
           <Route path="species" element={<SpeciesManagement />} />
 
           <Route path="report" element={<ReportManagement />}>
-            <Route index element={<UserReportManagemnt />} />
-            <Route path="user" element={<UserReportManagemnt />} />
+            <Route index element={<UserReportManagement />} />
+            <Route path="user" element={<UserReportManagement />} />
             <Route path="post" element={<PostReportManagement />} />
+            <Route path="blog" element={<BlogReportManagemnt />} />
           </Route>
           
           <Route path="shelter" element={<ShelterManagement />} />

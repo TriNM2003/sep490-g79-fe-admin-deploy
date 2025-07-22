@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppContext from '@/context/AppContext';
+import type { PostReportDetailDialog } from '@/types/DetailDialog';
 import type { DonationTableData } from '@/types/DonationTableData';
 import type { ReportPost, ReportUser } from '@/types/ReportTableData';
 import type ReportTableData from '@/types/ReportTableData';
@@ -13,48 +14,10 @@ import useAuthAxios from '@/utils/authAxios';
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Loader2Icon, MoreHorizontal, NotebookText } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react'
+import { toast } from 'sonner';
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 
-
-export const mockReportData: ReportTableData[] = [
-  {
-    _id: "rpt004",
-    reportType: "post",
-    post: {
-      _id: "post567",
-      title: `Tên lửa siêu vượt âm Fattah là vũ khí có tốc độ tối thiểu gấp 5 lần âm thanh (Mach 5), tương đương hơn 6.200 km/h. IRGC ra mắt tên lửa Fattah hồi tháng 6/2023, mô tả đây là "bước nhảy vọt lớn trong lĩnh vực tên lửa" của nước này. Giới chức Iran cho hay Fattah có tầm bắn 1.400 km, tốc độ tối đa khoảng 15.000 km/h, nhanh gấp 14 lần âm thanh, và có khả năng "xuyên thủng mọi lá chắn phòng thủ".
-
-Tuy nhiên, có nhiều đánh giá liên quan đến tên lửa này. Bộ Quốc phòng Israel từng nhận định Fattah là t
-Tên lửa siêu vượt âm Fattah là vũ khí có tốc độ tối thiểu gấp 5 lần âm thanh (Mach 5), tương đương hơn 6.200 km/h. IRGC ra mắt tên lửa Fattah hồi tháng 6/2023, mô tả đây là "bước nhảy vọt lớn trong lĩnh vực tên lửa" của nước này. Giới chức Iran cho hay Fattah có tầm bắn 1.400 km, tốc độ tối đa khoảng 15.000 km/h, nhanh gấp 14 lần âm thanh, và có khả năng "xuyên thủng mọi lá chắn phòng thủ".
-
-Tuy nhiên, có nhiều đánh giá liên quan đến tên lửa này. Bộ Quốc phòng Israel từng nhận định Fattah là t
-Tên lửa siêu vượt âm Fattah là vũ khí có tốc độ tối thiểu gấp 5 lần âm thanh (Mach 5), tương đương hơn 6.200 km/h. IRGC ra mắt tên lửa Fattah hồi tháng 6/2023, mô tả đây là "bước nhảy vọt lớn trong lĩnh vực tên lửa" của nước này. Giới chức Iran cho hay Fattah có tầm bắn 1.400 km, tốc độ tối đa khoảng 15.000 km/h, nhanh gấp 14 lần âm thanh, và có khả năng "xuyên thủng mọi lá chắn phòng thủ".
-
-Tuy nhiên, có nhiều đánh giá liên quan đến tên lửa này. Bộ Quốc phòng Israel từng nhận định Fattah là t`,
-      photos: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDCsqRYLAFDdL4Ix_AHai7kNVyoPV9Ssv1xg&s", "https://d2zp5xs5cp8zlg.cloudfront.net/image-79322-800.jpg"],
-      privacy: ["public"],
-      createdBy: {
-        _id: "user006",
-        fullName: "Lý Thị F",
-        email: "lyf@example.com",
-        avatar: "https://thumbs.dreamstime.com/b/d-icon-avatar-cute-smiling-woman-cartoon-hipster-character-people-close-up-portrait-isolated-transparent-png-background-345284600.jpg"
-      },
-      status: "active"
-    },
-    reportedBy: {
-      _id: "user007",
-      fullName: "Đặng Văn G",
-      email: "dangvg@example.com",
-      avatar: "https://thumbs.dreamstime.com/b/d-icon-avatar-cute-smiling-woman-cartoon-hipster-character-people-close-up-portrait-isolated-transparent-png-background-345284600.jpg"
-    },
-    reason: "Nội dung nghi ngờ lừa đảo.",
-    photos: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROQLTuxZA10DcnEpMqqA0P1zjgQJgYNE9Tkw&s", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_GWXCDhEZj3Czmg297R6BezEqmvnTnFgl_A&s"],
-    status: "pending",
-    createdAt: new Date("2025-07-04T09:00:00.000Z"),
-    updatedAt: new Date("2025-07-04T09:00:00.000Z")
-  },
-];
 
 type dialogDetail = {
   isOpen: boolean;
@@ -87,12 +50,12 @@ const statusTiengViet = (statusName: string) => {
   };
 
 const PostReportManagement = () => {
-      const [donationData, setDonationData] = useState<DonationTableData[]>([]);
-      const [filteredDonations, setFilteredDonations] = useState<DonationTableData[]>([]);
-      // const {userAPI, donationAPI} = useContext(AppContext);
+      const [postReports, setPostReports] = useState<ReportTableData[]>([]);
+      const [filteredPostReports, setFilteredPostReports] = useState<ReportTableData[]>([]);
+      const {reportAPI} = useContext(AppContext);
       const authAxios = useAuthAxios();
       const [loading, setLoading] = useState<boolean>(false);
-      const [donationRefresh, setDonationRefresh] = useState<boolean>(false);
+      const [refresh, setRefresh] = useState<boolean>(false);
       const [isPreview, setIsPreview] = useState<boolean>(false);
       const [currentIndex, setCurrentIndex] = useState<number>(0);
       const [isFullVisionLength, setIsFullVisionLength] = useState<boolean>(false);
@@ -105,7 +68,7 @@ const PostReportManagement = () => {
             _id: "post567",
             title: "Bán mèo giá rẻ",
             photos: ["https://example.com/post2.jpg"],
-            privacy: ["public"],
+            privacy: "public",
             createdBy: {
               _id: "user006",
               fullName: "Lý Thị F",
@@ -132,11 +95,15 @@ const PostReportManagement = () => {
       const allPhotos = [...postPhotos, ...evidencePhotos] //tat ca anh
 
 
-      // useEffect(() => {
-      //   authAxios.get(`${donationAPI}/get-all`)
-      //   .then(({data}) => console.log(data)) 
-      //   .catch((err) => console.log(err?.response.data.message))
-      // }, [])
+      useEffect(() => {
+        authAxios.get(`${reportAPI}/get-pending-post-reports`)
+        .then(({data}) => {
+          console.log(data)
+          setPostReports(data);
+          setFilteredPostReports(data);
+        }) 
+        .catch((err) => console.log(err?.response.data.message))
+      }, [refresh])
 
       const columns: ColumnDef<ReportTableData>[] = [
         {
@@ -151,8 +118,8 @@ const PostReportManagement = () => {
             );
           },
         },
-        {
-          accessorKey: "reportedBy",
+         {
+          accessorKey: "post",
           header: ({ column }) => {
             return (
               <Button
@@ -162,17 +129,17 @@ const PostReportManagement = () => {
                 }
                 className="cursor-pointer"
               >
-                Báo cáo bởi
+                Bài viết
                 <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             );
           },
           cell: ({ row }) => {
-            return <p className='flex'>
+            return <p className='flex gap-2'>
               <Avatar>
-                <AvatarImage src={row.original.reportedBy.avatar} alt={row.original.reportedBy.fullName} />
+                <AvatarImage src={row.original.post?.photos[0]} alt={row.original.post?.title} />
               </Avatar>
-              <span>{row.original.reportedBy.fullName}</span>
+              <span className='my-auto max-w-25 truncate'>{row.original.post?.title}</span>
             </p>;
           },
         },
@@ -194,6 +161,31 @@ const PostReportManagement = () => {
           },
           cell: ({ row }) => {
             return <p className='px-2'>{row.original.reason}</p>;
+          },
+        },
+                {
+          accessorKey: "reportedBy",
+          header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="cursor-pointer"
+              >
+                Báo cáo bởi
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            );
+          },
+          cell: ({ row }) => {
+            return <p className='flex gap-2'>
+              <Avatar>
+                <AvatarImage src={row.original.reportedBy.avatar} alt={row.original.reportedBy.fullName} />
+              </Avatar>
+              <span className='my-auto max-w-20 truncate'>{row.original.reportedBy.fullName}</span>
+            </p>;
           },
         },
         {
@@ -266,7 +258,7 @@ const PostReportManagement = () => {
                   }}
                     className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
                   >
-                    <NotebookText className="w-4 h-4" /> Xem thông tin chi tiết
+                    <NotebookText className="w-4 h-4" /> Xem/duyệt
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -274,22 +266,6 @@ const PostReportManagement = () => {
           ),
         },
       ];
-
-        const handleAprroveReport = (data: dialogDetail) => {
-          try {
-            console.log(data);
-          } catch (error: any) {
-            console.log(error?.response.data.message);
-          }
-        };
-
-        const handleRejectReport = (data: dialogDetail) => {
-          try {
-            console.log(data);
-          } catch (error: any) {
-            console.log(error?.response.data.message);
-          }
-        };
 
   // hien thi preview anh
     if (isPreview) {
@@ -307,6 +283,34 @@ const PostReportManagement = () => {
     );
     }
 
+    const handleApprovePostReport = async (reportData: PostReportDetailDialog) => {
+          try {
+            setLoading(true);
+            await authAxios.put(`${reportAPI}/review/post/${reportData.detail._id}/approve`)
+            setDialogDetail({...dialogDetail, isOpen: false});
+            setRefresh(prev => !prev)
+            toast.success("Xử lý báo cáo thành công!")
+          } catch (error: any) {
+            toast.error(error?.response.data.message);
+          } finally{
+            setLoading(false)
+          }
+        };
+    
+        const handleRejectPostReport = async (reportData: PostReportDetailDialog) => {
+          try {
+            setLoading(true);
+            await authAxios.put(`${reportAPI}/review/post/${reportData.detail._id}/reject`)
+            setDialogDetail({...dialogDetail, isOpen: false});
+            setRefresh(prev => !prev)
+            toast.success("Xử lý báo cáo thành công!")
+          } catch (error: any) {
+            toast.error(error?.response.data.message);
+          } finally{
+            setLoading(false)
+          }
+        };
+
 
   return (
     <div className="flex flex-1 flex-col px-20 py-10">
@@ -317,8 +321,7 @@ const PostReportManagement = () => {
           </h4>
         </div>
         <div className="col-span-12 px-5">
-          <Badge variant="destructive" className="mx-auto p-2">Báo cáo bài viết chờ xử lý: 12</Badge>
-          <DataTable columns={columns} data={mockReportData ?? []} />
+          <DataTable columns={columns} data={filteredPostReports ?? []} />
         </div>
       </div>
 
@@ -362,13 +365,7 @@ const PostReportManagement = () => {
             </div>
             <div>
               <p className="font-medium">Chế độ hiển thị</p>
-              {dialogDetail.detail?.post?.privacy?.map(setting => {
-                if(setting === "public"){
-                  return <Badge>Công khai</Badge>
-                }else{
-                  return <Badge>Riêng tư</Badge>
-                }
-              })}
+              <Badge>{dialogDetail.detail.post?.privacy === "public" ? "Công khai" : "Riêng tư"}</Badge>
             </div>
           </div>
           <div className="col-span-8 space-y-3">
@@ -518,10 +515,10 @@ const PostReportManagement = () => {
             <Button disabled><Loader2Icon className="mr-2 animate-spin" /> Vui lòng chờ</Button>
           ) : (
             <>
-              <Button onClick={() => handleAprroveReport(dialogDetail)}>
+              <Button onClick={() => handleApprovePostReport(dialogDetail)}>
                 Chấp thuận
               </Button>
-              <Button variant="destructive" onClick={() => handleRejectReport(dialogDetail)}>
+              <Button variant="destructive" onClick={() => handleRejectPostReport(dialogDetail)}>
                 Từ chối
               </Button>
             </>

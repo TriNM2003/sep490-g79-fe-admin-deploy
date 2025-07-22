@@ -22,7 +22,7 @@ export interface ReportPost {
   _id: string;
   title: string;
   photos: string[];
-  privacy: string[];
+  privacy: string;
   createdBy: ReportUser;
   status: string;
   createdAt?: Date;

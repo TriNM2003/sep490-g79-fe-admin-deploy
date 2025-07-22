@@ -14,17 +14,17 @@ import { ArrowUpDown, Loader2Icon, MoreHorizontal, NotebookText } from 'lucide-r
 import React, { useContext, useEffect, useState } from 'react'
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
-import UserReportDetailDialogUI from './ui/UserReportDetailDialog';
-import HandleReport from './logic/HandleReport';
+import UserReportDetailDialogUI from './UserReportDetailDialog';
+import { toast } from 'sonner';
 
 
-const UserReportManagemnt = () => {
+const UserReportManagement = () => {
       const [userReports, setUserReports] = useState<ReportTableData[]>([]);
       const [filteredUserReports, setFilteredUserReports] = useState<ReportTableData[]>([]);
       const {reportAPI} = useContext(AppContext);
       const authAxios = useAuthAxios();
       const [loading, setLoading] = useState<boolean>(false);
-      const [donationRefresh, setDonationRefresh] = useState<boolean>(false);
+      const [refresh, setRefresh] = useState<boolean>(false);
       const [isPreview, setIsPreview] = useState<boolean>(false);
       const [currentIndex, setCurrentIndex] = useState<number>(0);
       const [dialogDetail, setDialogDetail] = useState<UserReportDetailDialog>({
@@ -65,17 +65,16 @@ const UserReportManagemnt = () => {
           updatedAt: new Date("2025-07-01T09:00:00.000Z"),
         },
       });
-    const {handleApproveUserReport, handleRejectUserReport} = HandleReport({reportData: dialogDetail});
 
       useEffect(() => {
         authAxios.get(`${reportAPI}/get-pending-user-reports`)
         .then(({data}) => {
-          console.log(data)
+          // console.log(data)
           setUserReports(data);
           setFilteredUserReports(data);
         }) 
         .catch((err) => console.log(err?.response.data.message))
-      }, [])
+      }, [refresh])
 
       const columns: ColumnDef<ReportTableData>[] = [
         {
@@ -232,7 +231,7 @@ const UserReportManagemnt = () => {
                   }}
                     className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
                   >
-                    <NotebookText className="w-4 h-4" /> Xem thông tin chi tiết
+                    <NotebookText className="w-4 h-4" /> Xem/duyệt
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -256,6 +255,34 @@ const UserReportManagemnt = () => {
     )
     );
     }
+
+    const handleApproveUserReport = async (reportData: UserReportDetailDialog) => {
+      try {
+        setLoading(true);
+        await authAxios.put(`${reportAPI}/review/user/${reportData.detail._id}/approve`)
+        setDialogDetail({...dialogDetail, isOpen: false});
+        setRefresh(prev => !prev)
+        toast.success("Xử lý báo cáo thành công!")
+      } catch (error: any) {
+        toast.error(error?.response.data.message);
+      } finally{
+        setLoading(false)
+      }
+    };
+
+    const handleRejectUserReport = async (reportData: UserReportDetailDialog) => {
+      try {
+        setLoading(true);
+        await authAxios.put(`${reportAPI}/review/user/${reportData.detail._id}/reject`)
+        setDialogDetail({...dialogDetail, isOpen: false});
+        setRefresh(prev => !prev)
+        toast.success("Xử lý báo cáo thành công!")
+      } catch (error: any) {
+        toast.error(error?.response.data.message);
+      } finally{
+        setLoading(false)
+      }
+    };
 
 
   return (
@@ -284,4 +311,4 @@ const UserReportManagemnt = () => {
   );
 }
 
-export default UserReportManagemnt;
+export default UserReportManagement;

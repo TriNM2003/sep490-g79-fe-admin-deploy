@@ -84,8 +84,12 @@ const data = {
           url: "/admin/report/user",
         },
         {
-          title: "Báo cáo bài viết",
+          title: "Báo cáo bài viết post",
           url: "/admin/report/post",
+        },
+        {
+          title: "Báo cáo bài viết blog",
+          url: "/admin/report/blog",
         },
       ],
     },

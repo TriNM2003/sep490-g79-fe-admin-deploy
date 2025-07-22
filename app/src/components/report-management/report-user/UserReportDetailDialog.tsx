@@ -3,6 +3,7 @@ import type { UserReportDetailDialog } from '@/types/DetailDialog';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Loader2Icon } from 'lucide-react';
+import { useState } from 'react';
 
 
 const UserReportDetailDialogUI = ({
@@ -78,7 +79,7 @@ const UserReportDetailDialogUI = ({
                   <p>{dialogDetail.detail?.user?.email || "Không có"}</p>
                 </div>
               </div>
-              <div className="col-span-8 space-y-3">
+              <div className="col-span-8 space-y-3 text-end">
                 <div>
                   <p className="font-medium">Số điện thoại</p>
                   <p>{dialogDetail.detail?.user?.phoneNumber || "Không có"}</p>
@@ -128,7 +129,7 @@ const UserReportDetailDialogUI = ({
                   <p>{dialogDetail.detail?.reason || "Không có"}</p>
                 </div>
               </div>
-              <div className="col-span-6 space-y-3">
+              <div className="col-span-6 space-y-3 text-end">
                 <div>
                   <p className="font-medium">Trạng thái</p>
                   {dialogDetail?.detail?.status && statusTiengViet(dialogDetail?.detail?.status)}
