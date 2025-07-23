@@ -303,14 +303,14 @@ const UserManagement = () => {
               return (
                 <Button
                   variant="destructive"
-                  className=" mx-auto cursor-pointer"
+                  className=" mx-auto cursor-pointer w-full"
                 >
                   Quản trị <ChevronDown />
                 </Button>
               );
             } else if (isUser) {
               return (
-                <Button variant="default" className="mx-auto cursor-pointer">
+                <Button variant="default" className="mx-auto cursor-pointer w-full">
                   Thông thường <ChevronDown />
                 </Button>
               );

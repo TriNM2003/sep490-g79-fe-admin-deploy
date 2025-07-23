@@ -1,12 +1,12 @@
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import type { UserReportDetailDialog } from '@/types/DetailDialog';
+import type { BlogReportDetailDialog } from '@/types/DetailDialog';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Loader2Icon } from 'lucide-react';
 import { useState } from 'react';
+import parse from "html-react-parser";
 
-
-const UserReportDetailDialogUI = ({
+const BlogReportDetailDialogUI = ({
   dialogDetail,
   setDialogDetail,
   handleAprroveReport,
@@ -16,7 +16,7 @@ const UserReportDetailDialogUI = ({
   setIsPreview,
 
 }: {
-  dialogDetail: UserReportDetailDialog;
+  dialogDetail: BlogReportDetailDialog;
   setDialogDetail: Function;
   handleAprroveReport : Function;
   handleRejectReport: Function;
@@ -24,6 +24,8 @@ const UserReportDetailDialogUI = ({
   setCurrentIndex: Function;
   setIsPreview: Function;
 }) => {
+
+  const [showFullContent, setShowFullContent] = useState(false);
 
   const statusTiengViet = (statusName: string) => {
     if (statusName === "approved") {
@@ -48,60 +50,56 @@ const UserReportDetailDialogUI = ({
         }
       }}
     >
-      <DialogContent className="!max-w-[40vw] !max-h-[80vh] overflow-y-auto border border-8 border-white">
+      <DialogContent className="!max-w-[70vw] !max-h-[80vh] overflow-y-auto border border-8 border-white">
         <DialogHeader>
-          <DialogTitle>Chi tiết báo cáo tài khoản</DialogTitle>
+          <DialogTitle>Chi tiết báo cáo bài viết blog</DialogTitle>
           <DialogDescription>
-            Thông tin chi tiết về báo cáo tài khoản người dùng
+            Thông tin chi tiết về báo cáo bài viết blog
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-12 gap-6 py-4 text-sm">
-          {/* Tài khoản bị báo cáo */}
+          {/* Blog bị báo cáo */}
           <div className="col-span-12">
-            <h3 className="text-base font-semibold mb-2">
-              Tài khoản bị báo cáo
-            </h3>
-            <div className="grid grid-cols-12 gap-4 bg-muted p-4 rounded-lg">
-              <div className="col-span-4 space-y-3">
-                <div>
-                  <p className="font-medium">Ảnh đại diện</p>
-                  <Avatar className="w-20 h-20 mt-1">
-                    <AvatarImage src={dialogDetail.detail?.user?.avatar} />
-                  </Avatar>
-                </div>
-                <div>
-                  <p className="font-medium">Họ và tên</p>
-                  <p>{dialogDetail.detail?.user?.fullName || "Không có"}</p>
-                </div>
-                <div>
-                  <p className="font-medium">Email</p>
-                  <p>{dialogDetail.detail?.user?.email || "Không có"}</p>
-                </div>
-              </div>
-              <div className="col-span-8 space-y-3 text-end">
-                <div>
-                  <p className="font-medium">Số điện thoại</p>
-                  <p>{dialogDetail.detail?.user?.phoneNumber || "Không có"}</p>
-                </div>
-                <div>
-                  <p className="font-medium">Giới thiệu</p>
-                  <p>{dialogDetail.detail?.user?.bio || "Không có"}</p>
-                </div>
-                <div>
-                  <p className="font-medium">Địa chỉ</p>
-                  <p>{dialogDetail.detail?.user?.address || "Không có"}</p>
-                </div>
-                <div>
-                  <p className="font-medium">Ngày tạo tài khoản</p>
-                  <p>
-                    {
-                    dialogDetail.detail?.user?.createdAt &&
-                    new Date(
-                      dialogDetail.detail?.user?.createdAt
-                    ).toLocaleString("vi-VN")}
+            <h3 className="text-base font-semibold mb-2">Blog bị báo cáo</h3>
+            <div className="p-4 bg-muted rounded-lg space-y-3">
+              <div className="flex items-center gap-4">
+                <img
+                  src={dialogDetail.detail?.blog?.thumbnail_url}
+                  alt="thumbnail"
+                  className="w-28 h-20 object-cover rounded border"
+                />
+                <div className="space-y-1">
+                  <p className="font-semibold text-base">
+                    {dialogDetail.detail?.blog?.title || "Không có tiêu đề"}
+                  </p>
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {dialogDetail.detail?.blog?.description || "Không có mô tả"}
                   </p>
                 </div>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <div
+                  className={
+                    showFullContent
+                      ? ""
+                      : "line-clamp-3 max-h-[6em] overflow-hidden relative"
+                  }
+                >
+                  {dialogDetail.detail?.blog?.content
+                    ? parse(dialogDetail.detail.blog.content)
+                    : "Không có nội dung"}
+                </div>
+
+                {dialogDetail.detail?.blog?.content &&
+                  dialogDetail.detail.blog.content.length > 100 && (
+                    <button
+                      onClick={() => setShowFullContent(!showFullContent)}
+                      className="mt-1 text-blue-500 hover:underline text-sm"
+                    >
+                      {showFullContent ? "Rút gọn" : "Xem chi tiết"}
+                    </button>
+                  )}
               </div>
             </div>
           </div>
@@ -132,7 +130,8 @@ const UserReportDetailDialogUI = ({
               <div className="col-span-6 space-y-3 text-end">
                 <div>
                   <p className="font-medium">Trạng thái</p>
-                  {dialogDetail?.detail?.status && statusTiengViet(dialogDetail?.detail?.status)}
+                  {dialogDetail?.detail?.status &&
+                    statusTiengViet(dialogDetail?.detail?.status)}
                 </div>
                 <div>
                   <p className="font-medium">Ngày báo cáo</p>
@@ -178,7 +177,7 @@ const UserReportDetailDialogUI = ({
               <div className="col-span-12">
                 <p className="text-base font-semibold mb-2">Ảnh bằng chứng</p>
                 <div className="flex flex-wrap gap-3 p-2 border rounded-md">
-                  {dialogDetail.detail.photos.slice(0,2).map((photo, idx) => (
+                  {dialogDetail.detail.photos.slice(0, 2).map((photo, idx) => (
                     <img
                       key={idx}
                       src={photo}
@@ -244,4 +243,4 @@ const UserReportDetailDialogUI = ({
   );
 };
 
-export default UserReportDetailDialogUI
+export default BlogReportDetailDialogUI;

@@ -1,12 +1,12 @@
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import type { UserReportDetailDialog } from '@/types/DetailDialog';
+import type { BlogReportDetailDialog, PostReportDetailDialog } from '@/types/DetailDialog';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Loader2Icon } from 'lucide-react';
 import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 
-
-const UserReportDetailDialogUI = ({
+const PostReportDetailDialogUI = ({
   dialogDetail,
   setDialogDetail,
   handleAprroveReport,
@@ -16,7 +16,7 @@ const UserReportDetailDialogUI = ({
   setIsPreview,
 
 }: {
-  dialogDetail: UserReportDetailDialog;
+  dialogDetail: PostReportDetailDialog;
   setDialogDetail: Function;
   handleAprroveReport : Function;
   handleRejectReport: Function;
@@ -24,6 +24,11 @@ const UserReportDetailDialogUI = ({
   setCurrentIndex: Function;
   setIsPreview: Function;
 }) => {
+    const [isFullVisionLength, setIsFullVisionLength] = useState<boolean>(false);
+
+    const postPhotos = dialogDetail.detail?.post?.photos ?? [] //anh tu post
+      const evidencePhotos = dialogDetail.detail?.photos ?? []  //anh tu bang chung
+      const allPhotos = [...postPhotos, ...evidencePhotos] //tat ca anh
 
   const statusTiengViet = (statusName: string) => {
     if (statusName === "approved") {
@@ -48,59 +53,106 @@ const UserReportDetailDialogUI = ({
         }
       }}
     >
-      <DialogContent className="!max-w-[40vw] !max-h-[80vh] overflow-y-auto border border-8 border-white">
+      <DialogContent className="!max-w-[50vw] !max-h-[80vh] overflow-y-auto border border-8 border-white">
         <DialogHeader>
-          <DialogTitle>Chi tiết báo cáo tài khoản</DialogTitle>
+          <DialogTitle>Chi tiết báo cáo bài viết post</DialogTitle>
           <DialogDescription>
-            Thông tin chi tiết về báo cáo tài khoản người dùng
+            Thông tin chi tiết về báo cáo bài viết post
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-12 gap-6 py-4 text-sm">
-          {/* Tài khoản bị báo cáo */}
+          {/* Bài viết bị báo cáo */}
           <div className="col-span-12">
             <h3 className="text-base font-semibold mb-2">
-              Tài khoản bị báo cáo
+              Bài viết bị báo cáo
             </h3>
             <div className="grid grid-cols-12 gap-4 bg-muted p-4 rounded-lg">
               <div className="col-span-4 space-y-3">
                 <div>
-                  <p className="font-medium">Ảnh đại diện</p>
-                  <Avatar className="w-20 h-20 mt-1">
-                    <AvatarImage src={dialogDetail.detail?.user?.avatar} />
-                  </Avatar>
+                  <p className="font-medium">Người đăng</p>
+                  <div className="flex items-center gap-2">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage
+                        src={dialogDetail.detail?.post?.createdBy?.avatar}
+                      />
+                    </Avatar>
+                    <p>{dialogDetail.detail?.post?.createdBy?.fullName}</p>
+                  </div>
                 </div>
                 <div>
-                  <p className="font-medium">Họ và tên</p>
-                  <p>{dialogDetail.detail?.user?.fullName || "Không có"}</p>
+                  <p className="font-medium">Trạng thái</p>
+                  <p className="font-semibold text-blue-600">
+                    {dialogDetail.detail?.post?.status === "active"
+                      ? "Đã đăng"
+                      : dialogDetail.detail?.post?.status === "deleted"
+                      ? "Đã xóa"
+                      : "Đã ẩn"}
+                  </p>
                 </div>
                 <div>
-                  <p className="font-medium">Email</p>
-                  <p>{dialogDetail.detail?.user?.email || "Không có"}</p>
+                  <p className="font-medium">Chế độ hiển thị</p>
+                  <Badge>
+                    {dialogDetail.detail.post?.privacy === "public"
+                      ? "Công khai"
+                      : "Riêng tư"}
+                  </Badge>
                 </div>
               </div>
               <div className="col-span-8 space-y-3 text-end">
                 <div>
-                  <p className="font-medium">Số điện thoại</p>
-                  <p>{dialogDetail.detail?.user?.phoneNumber || "Không có"}</p>
+                  <p className="font-medium">Nội dung</p>
+                  {dialogDetail.detail?.post?.title &&
+                    dialogDetail.detail?.post?.title.length >= 300 &&
+                    !isFullVisionLength && (
+                      <>
+                        <p>{dialogDetail.detail?.post?.title.slice(0, 300)}</p>
+                        <a
+                          className="text-blue-500 underline cursor-pointer"
+                          onClick={() => {
+                            setIsFullVisionLength(true);
+                          }}
+                        >
+                          Đọc thêm
+                        </a>
+                      </>
+                    )}
+                  {dialogDetail.detail?.post?.title &&
+                    dialogDetail.detail?.post?.title.length >= 300 &&
+                    isFullVisionLength && (
+                      <>
+                        <p>{dialogDetail.detail?.post?.title}</p>
+                        <a
+                          className="text-blue-500 underline cursor-pointer"
+                          onClick={() => {
+                            setIsFullVisionLength(false);
+                          }}
+                        >
+                          Rút gọn
+                        </a>
+                      </>
+                    )}
+                  {dialogDetail.detail?.post?.title &&
+                    dialogDetail.detail?.post?.title.length < 300 && (
+                      <p>{dialogDetail.detail?.post?.title}</p>
+                    )}
                 </div>
-                <div>
-                  <p className="font-medium">Giới thiệu</p>
-                  <p>{dialogDetail.detail?.user?.bio || "Không có"}</p>
-                </div>
-                <div>
-                  <p className="font-medium">Địa chỉ</p>
-                  <p>{dialogDetail.detail?.user?.address || "Không có"}</p>
-                </div>
-                <div>
-                  <p className="font-medium">Ngày tạo tài khoản</p>
-                  <p>
-                    {
-                    dialogDetail.detail?.user?.createdAt &&
-                    new Date(
-                      dialogDetail.detail?.user?.createdAt
-                    ).toLocaleString("vi-VN")}
-                  </p>
+                <div className='flex flex-col justify-end'>
+                  <p className="font-medium">Ảnh bài viết</p>
+                  <div className="flex gap-2 mt-1 justify-end">
+                    {postPhotos?.map((photo, idx) => (
+                      <img
+                        key={idx}
+                        src={photo}
+                        alt={`post-photo-${idx}`}
+                        className="h-24 w-36 object-cover rounded border cursor-pointer hover:scale-105 transition-transform"
+                        onClick={() => {
+                          setCurrentIndex(idx);
+                          setIsPreview(true);
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -112,27 +164,53 @@ const UserReportDetailDialogUI = ({
             <div className="grid grid-cols-12 gap-4 bg-muted p-4 rounded-lg">
               <div className="col-span-6 space-y-3">
                 <div>
-                  <p className="font-medium">Tài khoản báo cáo</p>
+                  <p className="font-medium">Người báo cáo</p>
                   <div className="flex items-center gap-2">
                     <Avatar className="w-8 h-8">
                       <AvatarImage
                         src={dialogDetail.detail?.reportedBy?.avatar}
                       />
                     </Avatar>
-                    <p>
-                      {dialogDetail.detail?.reportedBy?.fullName || "Không có"}
-                    </p>
+                    <p>{dialogDetail.detail?.reportedBy?.fullName}</p>
                   </div>
                 </div>
                 <div>
                   <p className="font-medium">Lý do báo cáo</p>
-                  <p>{dialogDetail.detail?.reason || "Không có"}</p>
+                  {dialogDetail.detail?.reason.length >= 300 &&
+                    !isFullVisionLength && (
+                      <>
+                        <p>{dialogDetail.detail?.reason.slice(0, 300)}</p>
+                        <a
+                          onClick={() => {
+                            setIsFullVisionLength(true);
+                          }}
+                        >
+                          Đọc thêm
+                        </a>
+                      </>
+                    )}
+                  {dialogDetail.detail?.reason.length >= 300 &&
+                    isFullVisionLength && (
+                      <>
+                        <p>{dialogDetail.detail?.reason}</p>
+                        <a
+                          onClick={() => {
+                            setIsFullVisionLength(false);
+                          }}
+                        >
+                          Rút gọn
+                        </a>
+                      </>
+                    )}
+                  {dialogDetail.detail?.reason.length < 300 && (
+                    <p>{dialogDetail.detail?.reason}</p>
+                  )}
                 </div>
               </div>
               <div className="col-span-6 space-y-3 text-end">
                 <div>
-                  <p className="font-medium">Trạng thái</p>
-                  {dialogDetail?.detail?.status && statusTiengViet(dialogDetail?.detail?.status)}
+                  <p className="font-medium">Trạng thái xử lý</p>
+                  {statusTiengViet(dialogDetail.detail?.status)}
                 </div>
                 <div>
                   <p className="font-medium">Ngày báo cáo</p>
@@ -142,7 +220,7 @@ const UserReportDetailDialogUI = ({
                     )}
                   </p>
                 </div>
-                {dialogDetail.detail.status !== "pending" && dialogDetail.detail?.reviewedBy && dialogDetail.detail?.reviewedBy._id &&
+                                {dialogDetail.detail.status !== "pending" && dialogDetail.detail?.reviewedBy && dialogDetail.detail?.reviewedBy._id &&
                 <div className="col-span-6 space-y-3 text-end">
                   <div >
                     <p className="font-medium">Duyệt bởi</p>
@@ -174,17 +252,17 @@ const UserReportDetailDialogUI = ({
 
           {/* Ảnh bằng chứng */}
           {dialogDetail.detail.photos &&
-            dialogDetail.detail.photos.length > 0 && (
-              <div className="col-span-12">
+            dialogDetail.detail.photos?.length > 0 && (
+              <div className="col-span-12 max-w-[32vw]">
                 <p className="text-base font-semibold mb-2">Ảnh bằng chứng</p>
                 <div className="flex flex-wrap gap-3 p-2 border rounded-md">
-                  {dialogDetail.detail.photos.slice(0,2).map((photo, idx) => (
+                  {evidencePhotos?.map((photo, idx) => (
                     <img
                       key={idx}
                       src={photo}
-                      alt={`photo-${idx}`}
+                      alt={`evidence-${idx}`}
                       onClick={() => {
-                        setCurrentIndex(idx);
+                        setCurrentIndex(postPhotos.length + idx);
                         setIsPreview(true);
                       }}
                       className="h-24 w-36 object-cover rounded cursor-pointer border hover:scale-105 transition-transform"
@@ -194,7 +272,6 @@ const UserReportDetailDialogUI = ({
               </div>
             )}
         </div>
-
         <DialogFooter>
           <DialogClose asChild>
             <Button
@@ -244,4 +321,4 @@ const UserReportDetailDialogUI = ({
   );
 };
 
-export default UserReportDetailDialogUI
+export default PostReportDetailDialogUI;

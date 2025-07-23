@@ -1,3 +1,5 @@
+import type { Blog } from "./Blog";
+
 export interface ReportUser {
   _id: string;
   fullName: string;
@@ -29,12 +31,32 @@ export interface ReportPost {
   updatedAt?: Date;
 }
 
+// ---------- Blog ----------
+export interface ReportBlog {
+  _id: string;
+  title: string;
+  description: string;
+  content: string;
+  thumbnail_url?: string;
+  createdBy: ReportUser;
+  shelter?: {
+    _id: string;
+    name: string;
+    shelterCode: string;
+    avatar?: string
+  }
+  status: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 
 export default interface ReportTableData {
   _id: string;
   reportType: string;
   user?: ReportUser;   // nếu báo cáo người dùng
   post?: ReportPost;   // nếu báo cáo bài viết
+  blog?: ReportBlog;
   reportedBy: ReportUser;
   reviewedBy?: ReportUser;
   reason: string;

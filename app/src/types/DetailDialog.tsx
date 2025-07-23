@@ -1,4 +1,5 @@
-import type { ReportPost, ReportUser } from "./ReportTableData";
+import type { Blog } from "./Blog";
+import type { ReportBlog, ReportPost, ReportUser } from "./ReportTableData";
 
 export interface DetailDialog<T>{
   isOpen: boolean;
@@ -31,5 +32,19 @@ interface PostReportDetail {
   updatedAt: Date;
 }
 
+interface BlogReportDetail {
+  _id: string;
+  reportType: string;
+  blog?: ReportBlog;
+  reportedBy: ReportUser;
+  reviewedBy?: ReportUser;
+  reason: string;
+  photos?: string[];
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export type UserReportDetailDialog = DetailDialog<UserReportDetail>;
 export type PostReportDetailDialog = DetailDialog<PostReportDetail>;
+export type BlogReportDetailDialog = DetailDialog<BlogReportDetail>;
