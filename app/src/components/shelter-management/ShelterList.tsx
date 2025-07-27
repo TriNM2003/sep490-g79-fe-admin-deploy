@@ -14,13 +14,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppContext from "@/context/AppContext";
 import useAuthAxios from "@/utils/authAxios";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, CalendarIcon, HashIcon, Link, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
+import { ArrowUpDown, CalendarIcon, Ellipsis, HashIcon, Link, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { PhotoProvider, PhotoView } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
 import { Badge } from "../ui/badge";
 import type { Shelter } from "@/types/Shelter";
 import ShelterDetailDialog from "./ShelterDetailDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 
 const ShelterList = () => {
@@ -168,55 +169,61 @@ const ShelterList = () => {
         return <Badge variant={variant}>{label}</Badge>;
       },
     },
-    {
-      accessorKey: "createdAt",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="cursor-pointer"
-          >
-            Ngày tạo
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => {
-        return (
-          <span className="px-2">
-            {new Date(row.original.createdAt).toLocaleDateString("vi-vn")}
-          </span>
-        );
-      },
-    },
-    {
-      accessorKey: "updateAt",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="cursor-pointer"
-          >
-            Lần cuối cập nhập
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => {
-        return (
-          <span className="px-2">
-            {new Date(row.original.updatedAt).toLocaleDateString("vi-vn")}
-          </span>
-        );
-      },
-    },
+    // {
+    //   accessorKey: "createdAt",
+    //   header: ({ column }) => {
+    //     return (
+    //       <Button
+    //         variant="ghost"
+    //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //         className="cursor-pointer"
+    //       >
+    //         Ngày tạo
+    //         <ArrowUpDown className="ml-2 h-4 w-4" />
+    //       </Button>
+    //     );
+    //   },
+    //   cell: ({ row }) => {
+    //     return (
+    //       <span className="px-2">
+    //         {new Date(row.original.createdAt).toLocaleDateString("vi-vn")}
+    //       </span>
+    //     );
+    //   },
+    // },
+    // {
+    //   accessorKey: "updateAt",
+    //   header: ({ column }) => {
+    //     return (
+    //       <Button
+    //         variant="ghost"
+    //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //         className="cursor-pointer"
+    //       >
+    //         Lần cuối cập nhập
+    //         <ArrowUpDown className="ml-2 h-4 w-4" />
+    //       </Button>
+    //     );
+    //   },
+    //   cell: ({ row }) => {
+    //     return (
+    //       <span className="px-2">
+    //         {new Date(row.original.updatedAt).toLocaleDateString("vi-vn")}
+    //       </span>
+    //     );
+    //   },
+    // },
     {
       header: "Chi tiết",
       cell: ({ row }) => {
-        console.log(row.original)
-        return <ShelterDetailDialog shelter={row.original} />
+        return <DropdownMenu>
+          <DropdownMenuTrigger >
+            <Ellipsis  className="h-4 w-4 cursor-pointer"/>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <ShelterDetailDialog shelter={row.original} />
+          </DropdownMenuContent>
+        </DropdownMenu>
       },
     },
   ];
@@ -237,7 +244,7 @@ const ShelterList = () => {
       return (
         shelter.name.toLowerCase().includes(trimmedKeyword) ||
         shelter.email.toLowerCase().includes(trimmedKeyword) ||
-        shelter.address.toLowerCase().includes(trimmedKeyword)||
+        shelter.address && shelter.address.toLowerCase().includes(trimmedKeyword)||
         shelter.hotline.toString().includes(trimmedKeyword)
       );
     });

@@ -10,10 +10,10 @@ const PostReportManagement = () => {
         <Tabs defaultValue="pending">
           <TabsList className="w-[400px]">
             <TabsTrigger value="pending" className="cursor-pointer">
-              Các báo cáo tài khoản chờ xử lý
+              Các báo cáo bài post chờ xử lý
             </TabsTrigger>
             <TabsTrigger value="all" className="cursor-pointer">
-              Lịch sử báo cáo tài khoản
+              Lịch sử báo cáo bài post
             </TabsTrigger>
           </TabsList>
           <TabsContent value="pending">

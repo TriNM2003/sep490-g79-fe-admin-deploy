@@ -11,14 +11,15 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { CalendarIcon, HashIcon, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import type { Shelter } from "@/types/Shelter";
+import { DropdownMenuItem } from "../ui/dropdown-menu";
 
 const ShelterDetailDialog = ({ shelter } : {shelter: Shelter}) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="cursor-pointer">
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
           Chi tiết
-        </Button>
+        </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>

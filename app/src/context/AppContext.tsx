@@ -52,7 +52,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const authAPI = 'http://localhost:9999/auth';
   const userAPI = 'http://localhost:9999/users/admin';
   const shelterAPI = 'http://localhost:9999/shelters/admin';
-  const donationAPI = 'http://localhost:9999/donation/admin';
+  const donationAPI = 'http://localhost:9999/donations/admin';
   const blogAPI = 'http://localhost:9999/blogs/admin';
   const reportAPI = 'http://localhost:9999/reports/admin';
   const breedAPI = 'http://localhost:9999/breeds/admin';

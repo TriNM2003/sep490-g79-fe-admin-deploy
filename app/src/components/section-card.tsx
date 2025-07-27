@@ -19,7 +19,7 @@ export function SectionCard({icon, title, number, changePercentage, isHigher} : 
         <CardHeader>
           <CardDescription className="flex flex-row gap-2">{icon} {title} </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-center">
-            {number}
+            {number.toLocaleString()}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">

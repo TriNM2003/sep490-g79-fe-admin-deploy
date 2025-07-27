@@ -1,7 +1,5 @@
 import { DataTable } from '@/components/data-table'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -13,9 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppContext from '@/context/AppContext';
 import { cn } from '@/lib/utils';
 import type { Breed } from '@/types/Breed';
-import type { DonationTableData } from '@/types/DonationTableData';
 import { type Species } from '@/types/Species';
-import type { User } from '@/types/User';
 import useAuthAxios from '@/utils/authAxios';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ColumnDef } from '@tanstack/react-table';
@@ -41,7 +37,6 @@ const BreedManagement = () => {
     const [refresh, setRefresh] = useState<boolean>(false);
     const [createDialog, setCreateDialog] = useState<boolean>(false);
     const [detailDialog, setDetailDialog] = useState<Breed | null>(null);
-    
 
     const form = useForm<z.infer<typeof breedSchema>>({
       resolver: zodResolver(breedSchema),
@@ -108,11 +103,9 @@ const BreedManagement = () => {
 
       const handleEdit = async (values: z.infer<typeof breedSchema>) => {
         try {
-          const {speciesId, name, description } = values;
+          const {description } = values;
           await authAxios.put(`${breedAPI}/edit`, {
             breedId: detailDialog?._id,
-            speciesId,
-            name,
             description,
           });
 
@@ -255,29 +248,47 @@ const BreedManagement = () => {
                   <DropdownMenuItem
                     className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
                     onClick={() => {
-                        form.reset({
-                            speciesId: row.original.species._id,
-                            name: row.original.name,
-                            description: row.original.description
-                        })
-                        setDetailDialog(row.original)
+                      form.reset({
+                        speciesId: row.original.species._id,
+                        name: row.original.name,
+                        description: row.original.description,
+                      });
+                      setDetailDialog(row.original);
                     }}
                   >
                     Chỉnh sửa
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() =>
-                      toast("Bạn chắc chắn muốn xóa giống này ?", {
-                        description: "",
-                        action: {
-                          label: "Xóa",
-                          onClick: () => handleDelete(row.original._id),
-                        },
-                      })
-                    }
+                    onSelect={(e) => e.preventDefault()}
                     className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground rounded"
                   >
-                    Xóa giống
+                    <AlertDialog>
+                      <AlertDialogTrigger className='cursor-pointer'>Xóa giống</AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Xác nhận xóa giống{" "}
+                            <span className="text-destructive font-semibold">
+                              {row.original.name}
+                            </span>
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Chỉ được phép xóa giống nếu không có thú cưng nào hiện tại đang xử dụng giống
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className='cursor-pointer'>Hủy</AlertDialogCancel>
+                          <AlertDialogAction
+                          className='cursor-pointer'
+                            onClick={() => {
+                              handleDelete(row.original._id);
+                            }}
+                          >
+                            Xác nhận xóa
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -475,6 +486,7 @@ const BreedManagement = () => {
                             <PopoverTrigger asChild>
                               <FormControl>
                                 <Button
+                                  disabled
                                   variant="outline"
                                   role="combobox"
                                   className={cn(
@@ -539,10 +551,10 @@ const BreedManagement = () => {
                   render={({ field }) => (
                     <FormItem className="py-4">
                       <FormLabel>
-                        Tên giống<span className="text-destructive">*</span>
+                        Tên giống
                       </FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Fox sóc" />
+                        <Input {...field} placeholder="Fox sóc" disabled/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

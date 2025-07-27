@@ -46,7 +46,6 @@ const SpeciesManagement = () => {
     const [createDialog, setCreateDialog] = useState<boolean>(false);
     const [detailDialog, setDetailDialog] = useState<Species | null>(null);
     const [selectedSpecies, setSelectedSpecies] = useState<Species | null>(null);
-    const [selectedDifferentSpecies, setSelectedDifferentSpecies] = useState<string>("");
     const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 
     const form = useForm<z.infer<typeof speciesSchema>>({
@@ -102,10 +101,9 @@ const SpeciesManagement = () => {
 
       const handleEdit = async (values: z.infer<typeof speciesSchema>) => {
         try {
-            const {name, description} = values;
+            const {description} = values;
             await authAxios.put(`${speciesAPI}/edit`, {
                 speciesId: detailDialog?._id,
-                name,
                 description
             })
 
@@ -118,14 +116,9 @@ const SpeciesManagement = () => {
         }
       }
 
-      const handleDelete = async (speciesId: string, differentSpeciesId: string) => {
+      const handleDelete = async (speciesId: string) => {
         try {
-            if(!differentSpeciesId || differentSpeciesId.length < 1){
-              toast.error("Chưa chọn loài khác để chuyển thú cưng sang")
-              return;
-            }
-            await authAxios.delete(`${speciesAPI}/delete/${speciesId}/${differentSpeciesId}`)
-
+            await authAxios.delete(`${speciesAPI}/delete/${speciesId}`);
             toast.success("Xóa loài thành công!")
             setSelectedSpecies(null);
             setRefresh(prev => !prev)
@@ -365,10 +358,10 @@ const SpeciesManagement = () => {
                       render={({ field }) => (
                         <FormItem className="py-4">
                           <FormLabel>
-                            Tên loài<span className="text-destructive">*</span>
+                            Tên loài
                           </FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="Fox sóc" />
+                            <Input {...field} placeholder="Fox sóc" disabled/>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -413,62 +406,15 @@ const SpeciesManagement = () => {
         <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Xác nhận xóa loài</AlertDialogTitle>
+              <AlertDialogTitle>Xác nhận xóa loài <span className='text-destructive font-semibold'>{selectedSpecies?.name}</span></AlertDialogTitle>
               <AlertDialogDescription>
-                Chọn loài khác để tạm thời chuyển những thú cưng thuộc loài đã xóa sang loài khác vì mỗi thú cưng phải thuộc ít nhất một loài:
+                Chỉ được phép xóa loài mà không có thú cưng hoặc giống nào đang sử dụng! Vui lòng xác nhận trước khi xóa
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <div className='grid grid-cols-1 sm:grid-cols-3'>
-              <Button variant="outline" className="justify-between" disabled>
-                  {selectedSpecies?.name}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                </Button>
-              <MoveRight strokeWidth={1} className='my-auto mx-auto'/>
-              <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="justify-between">
-                  {selectedDifferentSpecies
-                    ? species.find((s) => s._id === selectedDifferentSpecies)
-                        ?.name
-                    : "Chọn loài"}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-0">
-                <Command>
-                  <CommandInput placeholder="Tìm loài..." />
-                  <CommandList>
-                    <CommandEmpty>Không tìm thấy loài</CommandEmpty>
-                    <CommandGroup>
-                      {species.filter((s) => s._id !== selectedSpecies?._id).map((item) => (
-                        <CommandItem
-                          key={item._id}
-                          value={item.name}
-                          onSelect={() => setSelectedDifferentSpecies(item._id)}
-                        >
-                          {item.name}
-                          <Check
-                            className={cn(
-                              "ml-auto",
-                              item._id === selectedDifferentSpecies
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            </div>
-          
-
             <AlertDialogFooter>
               <AlertDialogCancel>Hủy</AlertDialogCancel>
               <AlertDialogAction onClick={() => {
-                selectedSpecies?._id ? handleDelete(selectedSpecies?._id, selectedDifferentSpecies) : toast.error("Chưa chọn loài khác để chuyển thú cưng sang");
+                selectedSpecies && handleDelete(selectedSpecies?._id);
               }}>
                 Xác nhận xóa
               </AlertDialogAction>
