@@ -1,5 +1,5 @@
 import { DataTable } from '@/components/data-table'
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChartBarLabelCustom } from '@/components/ui/chart-bar-label-custom';
@@ -173,11 +173,17 @@ const DonationDetails = () => {
           cell: ({ row }) => (
             row.original.donor ?
             <p className='flex gap-2'>
-              <Avatar>
+              <Avatar className='ring-2 ring-primary'>
                 <AvatarImage src={row.original.donor.avatar || "https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-avatar-vector-isolated-on-white-background-png-image_1694546.jpg"} alt={row.original.donor.fullName} />
+                <AvatarFallback>Avt</AvatarFallback>
               </Avatar>
               <span className='my-auto'>{row.original.donor.fullName}</span>
-            </p> : <p className='ms-10 font-semibold'>Mạnh Thường quân</p>
+            </p> : <div className='flex flex-row gap-2'>
+              <Avatar className='ring-2 ring-primary'>
+                  <AvatarFallback>MTQ</AvatarFallback>
+                </Avatar>
+                <p className='my-auto'>Mạnh thường quân</p>
+            </div>
           ),
         },
         {
@@ -316,7 +322,7 @@ const DonationDetails = () => {
           cell: ({ row }) =>
             row.original.donor ? (
               <p className="flex gap-2">
-                <Avatar>
+                <Avatar className='ring-2 ring-primary'>
                   <AvatarImage
                     src={
                       row.original.donor.avatar ||
@@ -328,7 +334,12 @@ const DonationDetails = () => {
                 <span className="my-auto">{row.original.donor.fullName}</span>
               </p>
             ) : (
-              <p className="ms-10 font-semibold">Mạnh Thường quân</p>
+              <div className='flex flex-row gap-2'>
+              <Avatar className='ring-2 ring-primary'>
+                  <AvatarFallback>MTQ</AvatarFallback>
+                </Avatar>
+                <p className='my-auto'>Mạnh thường quân</p>
+            </div>
             ),
         },
         {

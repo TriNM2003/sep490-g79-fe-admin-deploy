@@ -53,7 +53,7 @@ const PostReportDetailDialogUI = ({
         }
       }}
     >
-      <DialogContent className="!max-w-[50vw] !max-h-[80vh] overflow-y-auto border border-8 border-white">
+      <DialogContent className="!max-w-[60vw] !max-h-[80vh] overflow-y-auto border border-8 border-white">
         <DialogHeader>
           <DialogTitle>Chi tiết báo cáo bài viết post</DialogTitle>
           <DialogDescription>
@@ -67,8 +67,8 @@ const PostReportDetailDialogUI = ({
             <h3 className="text-base font-semibold mb-2">
               Bài viết bị báo cáo
             </h3>
-            <div className="grid grid-cols-12 gap-4 bg-muted p-4 rounded-lg">
-              <div className="col-span-4 space-y-3">
+            <div className="grid grid-cols-12 gap-4 p-4 rounded-lg border border-2">
+              <div className="col-span-12 space-y-3 flex flex-row gap-2 justify-between">
                 <div>
                   <p className="font-medium">Người đăng</p>
                   <div className="flex items-center gap-2">
@@ -92,21 +92,21 @@ const PostReportDetailDialogUI = ({
                 </div>
                 <div>
                   <p className="font-medium">Chế độ hiển thị</p>
-                  <Badge>
+                  <p>
                     {dialogDetail.detail.post?.privacy === "public"
                       ? "Công khai"
                       : "Riêng tư"}
-                  </Badge>
+                  </p>
                 </div>
               </div>
-              <div className="col-span-8 space-y-3 text-end">
+              <div className="col-span-12 space-y-3 text-start">
                 <div>
                   <p className="font-medium">Nội dung</p>
                   {dialogDetail.detail?.post?.title &&
                     dialogDetail.detail?.post?.title.length >= 300 &&
                     !isFullVisionLength && (
                       <>
-                        <p>{dialogDetail.detail?.post?.title.slice(0, 300)}</p>
+                        <p className='my-2'>{dialogDetail.detail?.post?.title.slice(0, 300)}</p>
                         <a
                           className="text-blue-500 underline cursor-pointer"
                           onClick={() => {
@@ -121,7 +121,7 @@ const PostReportDetailDialogUI = ({
                     dialogDetail.detail?.post?.title.length >= 300 &&
                     isFullVisionLength && (
                       <>
-                        <p>{dialogDetail.detail?.post?.title}</p>
+                        <p className='my-2'>{dialogDetail.detail?.post?.title}</p>
                         <a
                           className="text-blue-500 underline cursor-pointer"
                           onClick={() => {
@@ -137,9 +137,9 @@ const PostReportDetailDialogUI = ({
                       <p>{dialogDetail.detail?.post?.title}</p>
                     )}
                 </div>
-                <div className='flex flex-col justify-end'>
+                <div className="flex flex-col">
                   <p className="font-medium">Ảnh bài viết</p>
-                  <div className="flex gap-2 mt-1 justify-end">
+                  <div className="flex gap-2 mt-1">
                     {postPhotos?.map((photo, idx) => (
                       <img
                         key={idx}
@@ -161,8 +161,8 @@ const PostReportDetailDialogUI = ({
           {/* Chi tiết báo cáo */}
           <div className="col-span-12">
             <h3 className="text-base font-semibold mb-2">Chi tiết báo cáo</h3>
-            <div className="grid grid-cols-12 gap-4 bg-muted p-4 rounded-lg">
-              <div className="col-span-6 space-y-3">
+            <div className="grid grid-cols-12 gap-4 p-4 rounded-lg border border-2">
+              <div className="col-span-12 space-y-3 text-start flex flex-row justify-between">
                 <div>
                   <p className="font-medium">Người báo cáo</p>
                   <div className="flex items-center gap-2">
@@ -174,6 +174,49 @@ const PostReportDetailDialogUI = ({
                     <p>{dialogDetail.detail?.reportedBy?.fullName}</p>
                   </div>
                 </div>
+                <div>
+                  <p className="font-medium">Trạng thái xử lý</p>
+                  {statusTiengViet(dialogDetail.detail?.status)}
+                </div>
+                <div>
+                  <p className="font-medium">Ngày báo cáo</p>
+                  <p>
+                    {new Date(dialogDetail.detail?.createdAt).toLocaleString(
+                      "vi-VN"
+                    )}
+                  </p>
+                </div>
+                {dialogDetail.detail.status !== "pending" &&
+                  dialogDetail.detail?.reviewedBy &&
+                  dialogDetail.detail?.reviewedBy._id && (
+                    <div className="col-span-6 space-y-3 text-end">
+                      <div>
+                        <p className="font-medium">Duyệt bởi</p>
+                        <div className="flex gap-2 justify-end">
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage
+                              src={dialogDetail.detail?.reviewedBy?.avatar}
+                            />
+                          </Avatar>
+                          <p className="my-auto">
+                            {dialogDetail.detail?.reviewedBy?.fullName ||
+                              "Không có"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="font-medium">Duyệt vào</p>
+                        <p>
+                          {new Date(
+                            dialogDetail.detail?.updatedAt
+                          ).toLocaleString("vi-VN")}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+              </div>
+              <div className="col-span-12 space-y-3">
                 <div>
                   <p className="font-medium">Lý do báo cáo</p>
                   {dialogDetail.detail?.reason.length >= 300 &&
@@ -205,72 +248,34 @@ const PostReportDetailDialogUI = ({
                   {dialogDetail.detail?.reason.length < 300 && (
                     <p>{dialogDetail.detail?.reason}</p>
                   )}
-                </div>
-              </div>
-              <div className="col-span-6 space-y-3 text-end">
-                <div>
-                  <p className="font-medium">Trạng thái xử lý</p>
-                  {statusTiengViet(dialogDetail.detail?.status)}
-                </div>
-                <div>
-                  <p className="font-medium">Ngày báo cáo</p>
-                  <p>
-                    {new Date(dialogDetail.detail?.createdAt).toLocaleString(
-                      "vi-VN"
-                    )}
-                  </p>
-                </div>
-                                {dialogDetail.detail.status !== "pending" && dialogDetail.detail?.reviewedBy && dialogDetail.detail?.reviewedBy._id &&
-                <div className="col-span-6 space-y-3 text-end">
-                  <div >
-                    <p className="font-medium">Duyệt bởi</p>
-                    <div className="flex gap-2 justify-end">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage
-                          src={dialogDetail.detail?.reviewedBy?.avatar}
-                        />
-                      </Avatar>
-                      <p className='my-auto'>
-                        {dialogDetail.detail?.reviewedBy?.fullName || "Không có"}
-                      </p>
-                    </div>
-                  </div>
 
-                  <div>
-                    <p className="font-medium">Duyệt vào</p>
-                    <p>
-                      {new Date(dialogDetail.detail?.updatedAt).toLocaleString(
-                        "vi-VN"
-                      )}
-                    </p>
-                  </div>
+                  {/* Ảnh bằng chứng */}
+                  {dialogDetail.detail.photos &&
+                    dialogDetail.detail.photos?.length > 0 && (
+                      <div className="col-span-12 max-w-[32vw]">
+                        <p className="text-base font-semibold mb-2">
+                          Ảnh bằng chứng
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                          {evidencePhotos?.map((photo, idx) => (
+                            <img
+                              key={idx}
+                              src={photo}
+                              alt={`evidence-${idx}`}
+                              onClick={() => {
+                                setCurrentIndex(postPhotos.length + idx);
+                                setIsPreview(true);
+                              }}
+                              className="h-24 w-36 object-cover rounded cursor-pointer border hover:scale-105 transition-transform"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                 </div>
-                }
               </div>
             </div>
           </div>
-
-          {/* Ảnh bằng chứng */}
-          {dialogDetail.detail.photos &&
-            dialogDetail.detail.photos?.length > 0 && (
-              <div className="col-span-12 max-w-[32vw]">
-                <p className="text-base font-semibold mb-2">Ảnh bằng chứng</p>
-                <div className="flex flex-wrap gap-3 p-2 border rounded-md">
-                  {evidencePhotos?.map((photo, idx) => (
-                    <img
-                      key={idx}
-                      src={photo}
-                      alt={`evidence-${idx}`}
-                      onClick={() => {
-                        setCurrentIndex(postPhotos.length + idx);
-                        setIsPreview(true);
-                      }}
-                      className="h-24 w-36 object-cover rounded cursor-pointer border hover:scale-105 transition-transform"
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
         </div>
         <DialogFooter>
           <DialogClose asChild>

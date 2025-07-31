@@ -64,11 +64,54 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function ChartBarLabelCustom({donationData}: {donationData: monthlyData[]}) {
+  // Tính toán tăng hay giảm theo phần trăm
+  function calculateDonationChange(
+    currentAmount: number,
+    previousAmount: number
+  ): { percent: number; isIncrease: boolean, isEqual:boolean } {
+    if (previousAmount === 0) {
+      return {
+        percent: 100,
+        isIncrease: true,
+        isEqual: false,
+      };
+    }
+
+    const change = ((currentAmount - previousAmount) / previousAmount) * 100;
+    return {
+      percent: Math.abs(Math.round(change)),
+      isIncrease: change > 0,
+      isEqual: change === 0
+    };
+  }
+
+  const now = new Date();
+
+  const currentMonth = now.getMonth() + 1; // Tháng hiện tại (1–12)
+  const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1; // Tháng trước
+  const currentYear = now.getFullYear(); // Năm hiện tại
+
+
+
+  const currentMonthData = donationData && donationData.find(
+    (d) => d.month === `Tháng ${currentMonth}`
+  );
+  const previousMonthData = donationData && donationData.find(
+    (d) => d.month === `Tháng ${previousMonth}`
+  );
+
+  const { percent, isIncrease, isEqual } = calculateDonationChange(
+    currentMonthData?.amount ?? 0,
+    previousMonthData?.amount ?? 0
+  );
+
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Số tiền quyên góp vào hệ thống theo tháng (Năm 2025)</CardTitle>
-        <CardDescription>Thống kê từ Tháng 1 đến Tháng 12</CardDescription>
+        <CardTitle>
+          Số tiền quyên góp vào hệ thống theo tháng (Năm {currentYear})
+        </CardTitle>
+        <CardDescription>Thống kê từ tháng 1 đến tháng 12</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -123,10 +166,20 @@ export function ChartBarLabelCustom({donationData}: {donationData: monthlyData[]
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 leading-none font-medium">
-          Tháng hiện tại (Tháng 10) tăng 20% so với tháng trước (Tháng 9)<TrendingUp className="h-4 w-4" />
-        </div>
+        {isEqual ? (
+          <div className="flex gap-2 leading-none font-medium">
+            Tháng hiện tại (Tháng {currentMonth}) không thay đổi so với tháng
+            trước (Tháng {previousMonth})
+            <TrendingUp className="h-4 w-4" />
+          </div>
+        ) : (
+          <div className="flex gap-2 leading-none font-medium">
+            Tháng hiện tại (Tháng {currentMonth}) {isIncrease ? "Tăng" : "Giảm"}{" "}
+            {percent}% so với tháng trước (Tháng {previousMonth})
+            <TrendingUp className="h-4 w-4" />
+          </div>
+        )}
       </CardFooter>
     </Card>
-  )
+  );
 }

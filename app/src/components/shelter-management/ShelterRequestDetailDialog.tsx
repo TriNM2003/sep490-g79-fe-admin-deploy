@@ -12,14 +12,15 @@ import { Avatar } from "@/components/ui/avatar";
 import { CalendarIcon, HashIcon, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import type { Shelter } from "@/types/Shelter";
 import type { ShelterEstablishmentRequestTableData } from "@/types/ShelterEstablishmentRequest";
+import { DropdownMenuItem } from "../ui/dropdown-menu";
 
 const ShelterDetailDialog = ({ shelter } : {shelter: ShelterEstablishmentRequestTableData}) => {
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="cursor-pointer">
+      <DialogTrigger asChild >
+        <DropdownMenuItem className="cursor-pointer" onSelect={(e) => e.preventDefault()}>
           Chi tiết
-        </Button>
+        </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
@@ -57,6 +58,9 @@ const ShelterDetailDialog = ({ shelter } : {shelter: ShelterEstablishmentRequest
               ? "Hủy bỏ"
               : "Không xác định"}
           </Badge>
+          {shelter.status === "rejected" && 
+          <p className="text-sm">Lý do từ chối: <span className="font-semibold text-destructive">{shelter.rejectReason ?? "Không có lý do"}</span></p>
+          }
         </div>
 
         <div className="grid gap-2 mt-4">

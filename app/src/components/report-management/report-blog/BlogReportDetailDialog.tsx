@@ -50,7 +50,7 @@ const BlogReportDetailDialogUI = ({
         }
       }}
     >
-      <DialogContent className="!max-w-[70vw] !max-h-[80vh] overflow-y-auto border border-8 border-white">
+      <DialogContent className="!max-w-[40vw] !max-h-[80vh] overflow-y-auto border border-8 border-white">
         <DialogHeader>
           <DialogTitle>Chi tiết báo cáo bài viết blog</DialogTitle>
           <DialogDescription>
@@ -62,7 +62,7 @@ const BlogReportDetailDialogUI = ({
           {/* Blog bị báo cáo */}
           <div className="col-span-12">
             <h3 className="text-base font-semibold mb-2">Blog bị báo cáo</h3>
-            <div className="p-4 bg-muted rounded-lg space-y-3">
+            <div className="p-4 rounded-lg space-y-3 border border-2">
               <div className="flex items-center gap-4">
                 <img
                   src={dialogDetail.detail?.blog?.thumbnail_url}
@@ -107,8 +107,8 @@ const BlogReportDetailDialogUI = ({
           {/* Chi tiết báo cáo */}
           <div className="col-span-12">
             <h3 className="text-base font-semibold mb-2">Chi tiết báo cáo</h3>
-            <div className="grid grid-cols-12 gap-4 bg-muted p-4 rounded-lg">
-              <div className="col-span-6 space-y-3">
+            <div className="grid grid-cols-12 gap-4 p-4 rounded-lg border border-2">
+              <div className="col-span-12 space-y-3 flex flex-row justify-between">
                 <div>
                   <p className="font-medium">Tài khoản báo cáo</p>
                   <div className="flex items-center gap-2">
@@ -122,13 +122,7 @@ const BlogReportDetailDialogUI = ({
                     </p>
                   </div>
                 </div>
-                <div>
-                  <p className="font-medium">Lý do báo cáo</p>
-                  <p>{dialogDetail.detail?.reason || "Không có"}</p>
-                </div>
-              </div>
-              <div className="col-span-6 space-y-3 text-end">
-                <div>
+                               <div>
                   <p className="font-medium">Trạng thái</p>
                   {dialogDetail?.detail?.status &&
                     statusTiengViet(dialogDetail?.detail?.status)}
@@ -141,8 +135,10 @@ const BlogReportDetailDialogUI = ({
                     )}
                   </p>
                 </div>
+
+              </div>
                 {dialogDetail.detail.status !== "pending" && dialogDetail.detail?.reviewedBy && dialogDetail.detail?.reviewedBy._id &&
-                <div className="col-span-6 space-y-3 text-end">
+                <div className="col-span-12 space-y-3 flex flex-row justify-between">
                   <div >
                     <p className="font-medium">Duyệt bởi</p>
                     <div className="flex gap-2 justify-end">
@@ -167,7 +163,10 @@ const BlogReportDetailDialogUI = ({
                   </div>
                 </div>
                 }
-              </div>
+                                                <div className='col-span-12'>
+                  <p className="font-medium">Lý do báo cáo</p>
+                  <p>{dialogDetail.detail?.reason || "Không có"}</p>
+                </div>
             </div>
           </div>
 

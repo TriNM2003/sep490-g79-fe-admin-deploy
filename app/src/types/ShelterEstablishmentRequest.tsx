@@ -13,6 +13,7 @@ export interface ShelterEstablishmentRequestTableData {
         fullName: string;
         avatar: string
     }
+    rejectReason?: string;
     createdAt: Date;
     updatedAt: Date;
 }

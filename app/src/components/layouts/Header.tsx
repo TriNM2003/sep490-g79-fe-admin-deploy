@@ -38,7 +38,7 @@ function Header() {
                 <DropdownMenuItem onClick={() => {
                   logout();
                   setTimeout(() =>  navigate("/login"), 1000)
-                }}>Thoát đăng nhập</DropdownMenuItem>
+                }}>Đăng xuất</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </NavigationMenuItem>

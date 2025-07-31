@@ -14,6 +14,7 @@ export interface Shelter {
   foundationDate: Date;
   status: string;
   warningCount: number;
+  rejectReason?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
