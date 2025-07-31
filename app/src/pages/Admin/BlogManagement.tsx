@@ -1,13 +1,6 @@
-import BlogTable from '@/components/blog-management/BlogTable';
 import AllBlogs from '@/components/blog-management/tabs/AllBlogs';
 import ModeratingBlogs from '@/components/blog-management/tabs/ModeratingBlogs';
-import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AppContext from '@/context/AppContext';
-import { type Blog } from '@/types/Blog';
-import useAuthAxios from '@/utils/authAxios';
-import React, { useContext, useEffect, useState } from 'react'
-import { toast } from 'sonner';
 
 
 const BlogManagement = () => {

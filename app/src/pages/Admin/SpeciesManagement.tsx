@@ -1,22 +1,18 @@
-import { DataTable } from '@/components/data-table'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { DataTable } from '@/components/data-table';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import AppContext from '@/context/AppContext';
-import { cn } from '@/lib/utils';
 import { type Species } from '@/types/Species';
 import useAuthAxios from '@/utils/authAxios';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RowExpanding, type ColumnDef } from '@tanstack/react-table';
-import { Command } from 'cmdk';
-import { ArrowDown, ArrowRight, ArrowUpDown, Bone, Check, ChevronsUpDown, Crown, MoreHorizontal, MoveRight, NotebookText, Trash } from 'lucide-react';
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { type ColumnDef } from '@tanstack/react-table';
+import { ArrowUpDown, Bone, MoreHorizontal } from 'lucide-react';
+import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';

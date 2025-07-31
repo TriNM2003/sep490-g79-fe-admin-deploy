@@ -1,4 +1,4 @@
-import type { Blog } from "./Blog";
+
 import type { ReportBlog, ReportPost, ReportUser } from "./ReportTableData";
 
 export interface DetailDialog<T>{

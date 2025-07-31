@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Outlet } from "react-router-dom";
 
 const ReportManagement = () => {

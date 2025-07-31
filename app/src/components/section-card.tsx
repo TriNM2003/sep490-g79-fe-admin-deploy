@@ -1,15 +1,10 @@
-import { IconReport, IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
 
-import { Badge } from "@/components/ui/badge"
 import {
   Card,
-  CardAction,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { CatIcon, HouseIcon, UsersIcon } from "lucide-react"
 import type { SectionCardProps } from "@/types/SectionCardProp"
 
 export function SectionCard({icon, title, number} : SectionCardProps) {

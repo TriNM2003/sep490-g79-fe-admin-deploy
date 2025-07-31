@@ -1,9 +1,8 @@
-import {lazy, Suspense, type JSX, type LazyExoticComponent} from 'react';
+import {lazy, Suspense} from 'react';
 const ChartAreaInteractive = lazy(() => import('@/components/chart-area-interactive'));
 import { SectionCardContainer } from '@/components/section-card-container';
 import { SectionCard} from '@/components/section-card';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { Bone, BoneIcon, BookOpenTextIcon, BookTextIcon, Cat, CatIcon, DogIcon, FlagIcon, HouseIcon, Users, UsersIcon } from 'lucide-react';
+import {  BoneIcon, BookOpenTextIcon, BookTextIcon,  CatIcon, DogIcon, FlagIcon, HouseIcon, UsersIcon } from 'lucide-react';
 import { IconMoneybag } from '@tabler/icons-react';
 import { useContext, useEffect, useState } from 'react';
 import type dashboardSectionCard from '@/types/DashboardSectionCard';

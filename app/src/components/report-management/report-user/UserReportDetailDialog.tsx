@@ -3,7 +3,6 @@ import type { UserReportDetailDialog } from '@/types/DetailDialog';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Loader2Icon } from 'lucide-react';
-import { useState } from 'react';
 
 
 const UserReportDetailDialogUI = ({

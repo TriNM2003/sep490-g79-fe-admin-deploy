@@ -9,8 +9,8 @@ import type { ReportPost, ReportUser } from '@/types/ReportTableData';
 import type ReportTableData from '@/types/ReportTableData';
 import useAuthAxios from '@/utils/authAxios';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Loader2Icon, MoreHorizontal, NotebookText } from 'lucide-react';
-import React, { useContext, useEffect, useState } from 'react'
+import { ArrowUpDown, MoreHorizontal, NotebookText } from 'lucide-react';
+import { useContext, useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";

@@ -1,9 +1,8 @@
 import type { User } from "@/types/User";
 import useAuthAxios from "@/utils/authAxios";
-import authAxios from "@/utils/authAxios"; 
 import axios from "axios";
 import React, { createContext, useState, useContext, type ReactNode, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
 interface AppContextType {

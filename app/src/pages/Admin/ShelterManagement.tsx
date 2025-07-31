@@ -1,16 +1,7 @@
-import { DataTable } from '@/components/data-table';
 import ShelterEstablishmentRequestsList from '@/components/shelter-management/ShelterEstablishmentRequestsList';
 import ShelterList from '@/components/shelter-management/ShelterList';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
-import { Dialog } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { ShelterTableData } from '@/types/ShelterTableData';
-import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Link } from 'lucide-react';
-import { PhotoProvider, PhotoView } from 'react-photo-view';
+import { PhotoProvider } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 
 

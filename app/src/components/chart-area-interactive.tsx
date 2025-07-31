@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import dayjs from "dayjs"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
@@ -26,8 +25,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import useAuthAxios from "@/utils/authAxios"
-import AppContext from "@/context/AppContext"
 
 
 type ChartItem = {

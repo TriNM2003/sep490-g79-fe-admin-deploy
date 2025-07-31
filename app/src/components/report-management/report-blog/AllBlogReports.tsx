@@ -2,16 +2,14 @@ import { DataTable } from '@/components/data-table'
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppContext from '@/context/AppContext';
 import type { BlogReportDetailDialog, UserReportDetailDialog } from '@/types/DetailDialog';
-import type { DonationTableData } from '@/types/DonationTableData';
 import type ReportTableData from '@/types/ReportTableData';
 import useAuthAxios from '@/utils/authAxios';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Loader2Icon, MoreHorizontal, NotebookText } from 'lucide-react';
-import React, { useContext, useEffect, useState } from 'react'
+import { ArrowUpDown, MoreHorizontal, NotebookText } from 'lucide-react';
+import  { useContext, useEffect, useState } from 'react'
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import { toast } from 'sonner';

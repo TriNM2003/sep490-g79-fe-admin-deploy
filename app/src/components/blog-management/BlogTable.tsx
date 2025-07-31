@@ -2,7 +2,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import type { Blog } from '@/types/Blog';
 import { DataTable } from '@/components/data-table';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, ClipboardPen, Loader2Icon, MoreHorizontal, NotebookText, Trash } from 'lucide-react';
+import { ArrowUpDown, ClipboardPen, MoreHorizontal, NotebookText, Trash } from 'lucide-react';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

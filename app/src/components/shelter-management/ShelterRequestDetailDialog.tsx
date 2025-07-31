@@ -6,11 +6,9 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
-import { CalendarIcon, HashIcon, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
-import type { Shelter } from "@/types/Shelter";
+import { MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import type { ShelterEstablishmentRequestTableData } from "@/types/ShelterEstablishmentRequest";
 import { DropdownMenuItem } from "../ui/dropdown-menu";
 

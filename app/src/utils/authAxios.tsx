@@ -1,6 +1,5 @@
 import axios,{
   type InternalAxiosRequestConfig,
-  type AxiosResponse,
   AxiosError,
 } from 'axios';
 import {jwtDecode} from 'jwt-decode';

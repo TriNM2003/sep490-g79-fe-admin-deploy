@@ -1,7 +1,7 @@
 import DonationDetails from '@/components/donation-management/DonationDetails';
 import DonationOverview from '@/components/donation-management/DonationOverview';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PhotoProvider, PhotoView } from 'react-photo-view';
+import { PhotoProvider } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 
 

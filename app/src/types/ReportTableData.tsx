@@ -1,4 +1,4 @@
-import type { Blog } from "./Blog";
+
 
 export interface ReportUser {
   _id: string;

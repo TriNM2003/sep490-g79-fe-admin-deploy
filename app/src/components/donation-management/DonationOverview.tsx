@@ -1,48 +1,10 @@
-import { DataTable } from '@/components/data-table'
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
+
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { ChartBarLabelCustom } from '@/components/ui/chart-bar-label-custom';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppContext from '@/context/AppContext';
 import type { DonationTableData } from '@/types/DonationTableData';
-import type { Donor, User } from '@/types/User';
 import useAuthAxios from '@/utils/authAxios';
-import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Crown, MoreHorizontal, NotebookText } from 'lucide-react';
-import React, { useContext, useEffect, useMemo, useState } from 'react'
-
-// const rankColors = ["text-yellow-400", "text-sky-400", "text-green-400"];
-
-type dialogDetail = {
-  isOpen: boolean;
-  detail: {
-    donor?: Donor | null;
-    amount: number,
-    message: string,
-    createdAt: Date,
-    updatedAt: Date,
-  };
-};
-
-type summaryDialogDetail = {
-  isOpen: boolean;
-  detail: {
-    donor?: Donor | null;
-    amount: number,
-    createdAt: Date,
-    updatedAt: Date,
-  };
-};
-
-type DonationSummary = {
-  _id: string; 
-  donor?: Donor | null;
-  amount: number;
-  createdAt: Date;
-  updatedAt: Date;
-};
+import  { useContext, useEffect, useMemo, useState } from 'react'
 
 const DonationOverview = () => {
         const [filteredDonations, setFilteredDonations] = useState<DonationTableData[]>([]);
@@ -54,7 +16,7 @@ const DonationOverview = () => {
       >([]);
       const {donationAPI} = useContext(AppContext);
       const authAxios = useAuthAxios();
-      const [donationRefresh, setDonationRefresh] = useState<boolean>(false);
+      // const [donationRefresh, setDonationRefresh] = useState<boolean>(false);
 
 
 
@@ -74,7 +36,7 @@ const DonationOverview = () => {
         .catch((err:any) => {
           console.log(err?.response.data.message)
         })
-      }, [donationRefresh])
+      }, [])
 
       const totalDonationAmount = useMemo(() => {
         return filteredDonations.reduce((acc, current) => acc += current.amount, 0);

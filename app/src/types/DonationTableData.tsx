@@ -1,4 +1,4 @@
-import type { Donor, User } from "./User";
+import type { Donor } from "./User";
 
 export interface DonationTableData {
   _id: string; 

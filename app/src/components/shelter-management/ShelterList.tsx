@@ -1,22 +1,11 @@
 import { DataTable } from "@/components/data-table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppContext from "@/context/AppContext";
 import useAuthAxios from "@/utils/authAxios";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, CalendarIcon, Ellipsis, HashIcon, Link, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
+import { ArrowUpDown, Ellipsis} from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import { PhotoProvider, PhotoView } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
 import { Badge } from "../ui/badge";
 import type { Shelter } from "@/types/Shelter";

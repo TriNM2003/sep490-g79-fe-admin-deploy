@@ -2,16 +2,15 @@ import { DataTable } from '@/components/data-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChartBarLabelCustom } from '@/components/ui/chart-bar-label-custom';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppContext from '@/context/AppContext';
 import type { DonationTableData } from '@/types/DonationTableData';
-import type { Donor, User } from '@/types/User';
+import type { Donor} from '@/types/User';
 import useAuthAxios from '@/utils/authAxios';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Crown, MoreHorizontal, NotebookText } from 'lucide-react';
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { ArrowUpDown,  MoreHorizontal, NotebookText } from 'lucide-react';
+import { useContext, useEffect, useMemo, useState } from 'react'
 
 // const rankColors = ["text-yellow-400", "text-sky-400", "text-green-400"];
 

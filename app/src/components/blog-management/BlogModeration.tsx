@@ -8,7 +8,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { useState } from "react";
