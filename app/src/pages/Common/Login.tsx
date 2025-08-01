@@ -1,25 +1,21 @@
 
 import { Button } from '@/components/ui/button';
-import { FaGoogle } from "react-icons/fa";
 import {
   Card,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card"
+  CardContent
+} from "@/components/ui/card";
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from "sonner"
+import { toast } from "sonner";
 import { Loader2Icon } from 'lucide-react';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Separator } from '@/components/ui/separator';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'
-import AppContext, { useAppContext } from '@/context/AppContext';
+import axios from 'axios';
+import AppContext from '@/context/AppContext';
 
 const loginSchema = z.object({
   email: z.string().trim().min(1, {

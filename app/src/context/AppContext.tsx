@@ -1,9 +1,8 @@
 import type { User } from "@/types/User";
 import useAuthAxios from "@/utils/authAxios";
-import authAxios from "@/utils/authAxios"; 
 import axios from "axios";
 import React, { createContext, useState, useContext, type ReactNode, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
 interface AppContextType {
@@ -14,6 +13,10 @@ interface AppContextType {
   userAPI: string;
   shelterAPI: string;
   donationAPI: string;
+  blogAPI: string;
+  reportAPI: string;
+  breedAPI: string;
+  speciesAPI: string;
   userProfile: User | null;
   login: (accessToken: string, userData: User) => void;
   logout: () => void;
@@ -27,6 +30,10 @@ const AppContext = createContext<AppContextType>({
   userAPI: "",
   shelterAPI: "",
   donationAPI: "",
+  blogAPI: "",
+  reportAPI: "",
+  breedAPI: "string",
+  speciesAPI: "string",
   userProfile: null,
   login: () => {},
   logout: () => {},
@@ -44,7 +51,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const authAPI = 'http://localhost:9999/auth';
   const userAPI = 'http://localhost:9999/users/admin';
   const shelterAPI = 'http://localhost:9999/shelters/admin';
-  const donationAPI = 'http://localhost:9999/donation/admin';
+  const donationAPI = 'http://localhost:9999/donations/admin';
+  const blogAPI = 'http://localhost:9999/blogs/admin';
+  const reportAPI = 'http://localhost:9999/reports/admin';
+  const breedAPI = 'http://localhost:9999/breeds/admin';
+  const speciesAPI = 'http://localhost:9999/species/admin';
+
 
   const login = (accessToken: string, userData: User) => {
     setUser(userData);
@@ -89,6 +101,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         userAPI,
         shelterAPI,
         donationAPI,
+        blogAPI,
+        reportAPI,
+        breedAPI,
+        speciesAPI,
         userProfile,
         login,
         logout,

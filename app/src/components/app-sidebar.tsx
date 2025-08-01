@@ -1,33 +1,24 @@
 import * as React from "react"
 import {
-  IconArticle,
+  IconBone,
   IconBusinessplan,
   IconCamera,
-  IconChartBar,
+  IconCat,
   IconDashboard,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
   IconFileWord,
-  IconFolder,
-  IconHelp,
-  IconInnerShadowTop,
-  IconListDetails,
   IconPaw,
   IconReport,
-  IconSearch,
-  IconSettings,
   IconUsers,
 } from "@tabler/icons-react"
 
-import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -57,10 +48,20 @@ const data = {
       url: "/admin/user",
       icon: IconUsers,
     },
-    {
-      title: "Quản lý blog",
-      url: "/admin/blog",
-      icon: IconArticle,
+    // {
+    //   title: "Quản lý blog",
+    //   url: "/admin/blog",
+    //   icon: IconArticle,
+    // },
+        {
+      title: "Quản lý loài của thú cưng",
+      url: "/admin/species",
+      icon: IconCat,
+    },
+        {
+      title: "Quản lý giống của thú cưng",
+      url: "/admin/breed",
+      icon: IconBone,
     },
     {
       title: "Quản lý báo cáo",
@@ -72,8 +73,12 @@ const data = {
           url: "/admin/report/user",
         },
         {
-          title: "Báo cáo bài viết",
+          title: "Báo cáo bài viết post",
           url: "/admin/report/post",
+        },
+        {
+          title: "Báo cáo bài viết blog",
+          url: "/admin/report/blog",
         },
       ],
     },
@@ -131,23 +136,23 @@ const data = {
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Chỉnh sửa hệ thống",
-      url: "#",
-      icon: IconSettings,
-    },
-    // {
-    //   title: "Get Help",
-    //   url: "#",
-    //   icon: IconHelp,
-    // },
-    // {
-    //   title: "Search",
-    //   url: "#",
-    //   icon: IconSearch,
-    // },
-  ],
+  // navSecondary: [
+  //   {
+  //     title: "Chỉnh sửa hệ thống",
+  //     url: "#",
+  //     icon: IconSettings,
+  //   },
+  //   {
+  //     title: "Get Help",
+  //     url: "#",
+  //     icon: IconHelp,
+  //   },
+  //   {
+  //     title: "Search",
+  //     url: "#",
+  //     icon: IconSearch,
+  //   },
+  // ],
   documents: [
     {
       name: "Data Library",

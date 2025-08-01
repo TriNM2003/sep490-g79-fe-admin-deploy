@@ -61,7 +61,7 @@ const UserReportDetailDialogUI = ({
             <h3 className="text-base font-semibold mb-2">
               Tài khoản bị báo cáo
             </h3>
-            <div className="grid grid-cols-12 gap-4 bg-muted p-4 rounded-lg">
+            <div className="grid grid-cols-12 gap-4 p-4 rounded-lg border border-2">
               <div className="col-span-4 space-y-3">
                 <div>
                   <p className="font-medium">Ảnh đại diện</p>
@@ -78,7 +78,7 @@ const UserReportDetailDialogUI = ({
                   <p>{dialogDetail.detail?.user?.email || "Không có"}</p>
                 </div>
               </div>
-              <div className="col-span-8 space-y-3">
+              <div className="col-span-8 space-y-3 text-end">
                 <div>
                   <p className="font-medium">Số điện thoại</p>
                   <p>{dialogDetail.detail?.user?.phoneNumber || "Không có"}</p>
@@ -94,11 +94,10 @@ const UserReportDetailDialogUI = ({
                 <div>
                   <p className="font-medium">Ngày tạo tài khoản</p>
                   <p>
-                    {
-                    dialogDetail.detail?.user?.createdAt &&
-                    new Date(
-                      dialogDetail.detail?.user?.createdAt
-                    ).toLocaleString("vi-VN")}
+                    {dialogDetail.detail?.user?.createdAt &&
+                      new Date(
+                        dialogDetail.detail?.user?.createdAt
+                      ).toLocaleString("vi-VN")}
                   </p>
                 </div>
               </div>
@@ -108,8 +107,8 @@ const UserReportDetailDialogUI = ({
           {/* Chi tiết báo cáo */}
           <div className="col-span-12">
             <h3 className="text-base font-semibold mb-2">Chi tiết báo cáo</h3>
-            <div className="grid grid-cols-12 gap-4 bg-muted p-4 rounded-lg">
-              <div className="col-span-6 space-y-3">
+            <div className="grid grid-cols-12 gap-4 p-4 rounded-lg border border-2">
+              <div className="col-span-12 space-y-3 flex flex-row justify-between">
                 <div>
                   <p className="font-medium">Tài khoản báo cáo</p>
                   <div className="flex items-center gap-2">
@@ -124,14 +123,9 @@ const UserReportDetailDialogUI = ({
                   </div>
                 </div>
                 <div>
-                  <p className="font-medium">Lý do báo cáo</p>
-                  <p>{dialogDetail.detail?.reason || "Không có"}</p>
-                </div>
-              </div>
-              <div className="col-span-6 space-y-3">
-                <div>
                   <p className="font-medium">Trạng thái</p>
-                  {dialogDetail?.detail?.status && statusTiengViet(dialogDetail?.detail?.status)}
+                  {dialogDetail?.detail?.status &&
+                    statusTiengViet(dialogDetail?.detail?.status)}
                 </div>
                 <div>
                   <p className="font-medium">Ngày báo cáo</p>
@@ -141,14 +135,40 @@ const UserReportDetailDialogUI = ({
                     )}
                   </p>
                 </div>
-                <div>
-                  <p className="font-medium">Duyệt vào</p>
-                  <p>
-                    {new Date(dialogDetail.detail?.updatedAt).toLocaleString(
-                      "vi-VN"
-                    )}
-                  </p>
-                </div>
+              </div>
+                {dialogDetail.detail.status !== "pending" &&
+                  dialogDetail.detail?.reviewedBy &&
+                  dialogDetail.detail?.reviewedBy._id && (
+                    <div className="col-span-12 space-y-3 flex flex-row justify-between">
+                      <div>
+                        <p className="font-medium">Duyệt bởi</p>
+                        <div className="flex gap-2">
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage
+                              src={dialogDetail.detail?.reviewedBy?.avatar}
+                            />
+                          </Avatar>
+                          <p className="my-auto">
+                            {dialogDetail.detail?.reviewedBy?.fullName ||
+                              "Không có"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="font-medium">Duyệt vào</p>
+                        <p>
+                          {new Date(
+                            dialogDetail.detail?.updatedAt
+                          ).toLocaleString("vi-VN")}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+              <div className="col-span-12">
+                <p className="font-medium">Lý do báo cáo</p>
+                <p>{dialogDetail.detail?.reason || "Không có"}</p>
               </div>
             </div>
           </div>
@@ -159,7 +179,7 @@ const UserReportDetailDialogUI = ({
               <div className="col-span-12">
                 <p className="text-base font-semibold mb-2">Ảnh bằng chứng</p>
                 <div className="flex flex-wrap gap-3 p-2 border rounded-md">
-                  {dialogDetail.detail.photos.slice(0,2).map((photo, idx) => (
+                  {dialogDetail.detail.photos.slice(0, 2).map((photo, idx) => (
                     <img
                       key={idx}
                       src={photo}

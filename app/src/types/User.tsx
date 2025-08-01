@@ -12,3 +12,9 @@ export interface User {
     //.........
   }
   
+
+  export interface Donor {
+    _id: string;
+    avatar?: string;
+    fullName: string
+  }

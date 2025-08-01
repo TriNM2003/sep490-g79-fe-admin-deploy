@@ -1,22 +1,20 @@
 import { DataTable } from '@/components/data-table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppContext from '@/context/AppContext';
 import type { ShelterEstablishmentRequestTableData } from '@/types/ShelterEstablishmentRequest';
-import type { ShelterTableData } from '@/types/ShelterTableData';
 import useAuthAxios from '@/utils/authAxios';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Link, Loader2Icon, NotepadTextDashed } from 'lucide-react';
+import { ArrowUpDown, Ellipsis, Loader2Icon } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
-import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
 import { toast } from 'sonner';
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import ShelterDetailDialog from './ShelterRequestDetailDialog';
 
 const examplePhoto = "https://images.squarespace-cdn.com/content/v1/54822a56e4b0b30bd821480c/45ed8ecf-0bb2-4e34-8fcf-624db47c43c8/Golden+Retrievers+dans+pet+care.jpeg";
 
@@ -164,9 +162,15 @@ const ShelterEstablishmentRequestsList = () => {
         },
         {
                 id: "actions",
-                cell: ({ row }) => 
-                  row.original.status === "verifying" &&
-          <Button className="cursor-pointer" onClick={() => {
+                cell: ({ row }) => {
+        return <DropdownMenu>
+          <DropdownMenuTrigger >
+            <Ellipsis  className="h-4 w-4 cursor-pointer"/>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <ShelterDetailDialog shelter={row.original}/>
+            {row.original.status === "verifying" &&
+          <DropdownMenuItem className="cursor-pointer" onClick={() => {
             setSelectedShelterRequest({
               _id: row.original._id,
               avatar: row.original.avatar,
@@ -187,9 +191,12 @@ const ShelterEstablishmentRequestsList = () => {
             });
             setIsDialogOpen(true)
           }}>
-            <NotepadTextDashed /> Duyệt
-          </Button>
-            },
+             Duyệt
+          </DropdownMenuItem>}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      },
+          },
       ];
     
       function searchShelter(

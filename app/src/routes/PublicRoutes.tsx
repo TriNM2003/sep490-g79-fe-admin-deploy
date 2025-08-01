@@ -1,4 +1,4 @@
-import { Navigate, Outlet, Route } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 
 function PublicRoutes() {
   const accessToken = localStorage.getItem("accessToken");

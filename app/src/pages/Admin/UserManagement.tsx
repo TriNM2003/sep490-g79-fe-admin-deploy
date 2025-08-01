@@ -1,24 +1,19 @@
 
-import { DataTable } from '@/components/data-table'
+import { DataTable } from '@/components/data-table';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,  DropdownMenuGroup, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import AppContext from '@/context/AppContext'
-import type { UserTableData } from '@/types/UserTableData'
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import AppContext from '@/context/AppContext';
+import type { UserTableData } from '@/types/UserTableData';
 import useAuthAxios from '@/utils/authAxios';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu';
-import type { ColumnDef, ColumnFiltersState, SortingState } from '@tanstack/react-table'
-import { ArrowUpDown, Ban, ChevronDown, ChevronsUpDown, MoreHorizontal, NotebookText, RotateCcwKey, Users } from 'lucide-react'
-import React, { useContext, useEffect, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table';
+import { ArrowUpDown, Ban, ChevronDown, MoreHorizontal, NotebookText, RotateCcwKey } from 'lucide-react';
+import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -303,14 +298,14 @@ const UserManagement = () => {
               return (
                 <Button
                   variant="destructive"
-                  className="mx-auto cursor-pointer"
+                  className=" mx-auto cursor-pointer w-full"
                 >
                   Quản trị <ChevronDown />
                 </Button>
               );
             } else if (isUser) {
               return (
-                <Button variant="default" className="mx-auto cursor-pointer">
+                <Button variant="default" className="mx-auto cursor-pointer w-full">
                   Thông thường <ChevronDown />
                 </Button>
               );

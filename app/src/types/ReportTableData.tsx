@@ -1,3 +1,5 @@
+
+
 export interface ReportUser {
   _id: string;
   fullName: string;
@@ -22,7 +24,7 @@ export interface ReportPost {
   _id: string;
   title: string;
   photos: string[];
-  privacy: string[];
+  privacy: string;
   createdBy: ReportUser;
   status: string;
   createdAt?: Date;
@@ -33,27 +35,28 @@ export interface ReportPost {
 export interface ReportBlog {
   _id: string;
   title: string;
-  description?: string;
+  description: string;
   content: string;
-  thumbnail_url: string;
-  status: string;
-  shelter: {
+  thumbnail_url?: string;
+  createdBy: ReportUser;
+  shelter?: {
     _id: string;
     name: string;
-    avatar?: string;
-    address?: string;
-    warningCount?: number;
-  };
+    shelterCode: string;
+    avatar?: string
+  }
+  status: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
+
 
 export default interface ReportTableData {
   _id: string;
   reportType: string;
   user?: ReportUser;   // nếu báo cáo người dùng
   post?: ReportPost;   // nếu báo cáo bài viết
-  blog?:ReportBlog;   // nếu báo cáo blog
+  blog?: ReportBlog;
   reportedBy: ReportUser;
   reviewedBy?: ReportUser;
   reason: string;
