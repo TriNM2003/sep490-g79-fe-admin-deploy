@@ -33,22 +33,22 @@ type dialogDetail = {
   };
 };
 
-const statusTiengViet = (statusName: string) => {
-    if (statusName === "approved") {
-      return (
-        <p className="uppercase font-semibold text-green-600">Chấp thuận</p>
-      );
-    } else if (statusName === "rejected") {
-      return <p className="uppercase font-semibold text-red-600">Từ chối</p>;
-    } else {
-      return (
-        <p className="uppercase font-semibold text-amber-600">Chờ xử lý</p>
-      );
-    }
-  };
+// const statusTiengViet = (statusName: string) => {
+//     if (statusName === "approved") {
+//       return (
+//         <p className="uppercase font-semibold text-green-600">Chấp thuận</p>
+//       );
+//     } else if (statusName === "rejected") {
+//       return <p className="uppercase font-semibold text-red-600">Từ chối</p>;
+//     } else {
+//       return (
+//         <p className="uppercase font-semibold text-amber-600">Chờ xử lý</p>
+//       );
+//     }
+//   };
 
 const AllPostReports = () => {
-  const [postReports, setPostReports] = useState<ReportTableData[]>([]);
+  // const [postReports, setPostReports] = useState<ReportTableData[]>([]);
   const [filteredPostReports, setFilteredPostReports] = useState<
     ReportTableData[]
   >([]);
@@ -58,7 +58,7 @@ const AllPostReports = () => {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [isPreview, setIsPreview] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [isFullVisionLength, setIsFullVisionLength] = useState<boolean>(false);
+  // const [isFullVisionLength, setIsFullVisionLength] = useState<boolean>(false);
   const [dialogDetail, setDialogDetail] = useState<dialogDetail>({
     isOpen: false,
     detail: {
@@ -99,7 +99,7 @@ const AllPostReports = () => {
       .get(`${reportAPI}/get-post-reports`)
       .then(({ data }) => {
         // console.log(data)
-        setPostReports(data);
+        // setPostReports(data);
         setFilteredPostReports(data);
       })
       .catch((err) => console.log(err?.response.data.message));

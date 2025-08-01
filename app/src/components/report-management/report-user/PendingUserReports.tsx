@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 
 
 const PendingUserReports = () => {
-      const [userReports, setUserReports] = useState<ReportTableData[]>([]);
+      // const [userReports, setUserReports] = useState<ReportTableData[]>([]);
       const [filteredUserReports, setFilteredUserReports] = useState<ReportTableData[]>([]);
       const {reportAPI} = useContext(AppContext);
       const authAxios = useAuthAxios();
@@ -68,7 +68,7 @@ const PendingUserReports = () => {
         authAxios.get(`${reportAPI}/get-pending-user-reports`)
         .then(({data}) => {
           // console.log(data)
-          setUserReports(data);
+          // setUserReports(data);
           setFilteredUserReports(data);
         }) 
         .catch((err) => console.log(err?.response.data.message))

@@ -17,7 +17,7 @@ import BlogReportDetailDialogUI from './BlogReportDetailDialog';
 
 
 const AllBlogReports = () => {
-      const [blogReports, setBlogReports] = useState<ReportTableData[]>([]);
+      // const [blogReports, setBlogReports] = useState<ReportTableData[]>([]);
       const [filteredBlogReports, setFilteredBlogReports] = useState<ReportTableData[]>([]);
       const {reportAPI} = useContext(AppContext);
       const authAxios = useAuthAxios();
@@ -89,7 +89,7 @@ const AllBlogReports = () => {
         authAxios.get(`${reportAPI}/get-blog-reports`)
         .then(({data}) => {
           // console.log(data)
-          setBlogReports(data);
+          // setBlogReports(data);
           setFilteredBlogReports(data);
         }) 
         .catch((err) => console.log(err?.response.data.message))
