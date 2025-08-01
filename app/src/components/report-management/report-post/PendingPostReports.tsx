@@ -33,22 +33,22 @@ type dialogDetail = {
   };
 };
 
-const statusTiengViet = (statusName: string) => {
-    if (statusName === "approved") {
-      return (
-        <p className="uppercase font-semibold text-green-600">Chấp thuận</p>
-      );
-    } else if (statusName === "rejected") {
-      return <p className="uppercase font-semibold text-red-600">Từ chối</p>;
-    } else {
-      return (
-        <p className="uppercase font-semibold text-amber-600">Chờ xử lý</p>
-      );
-    }
-  };
+// const statusTiengViet = (statusName: string) => {
+//     if (statusName === "approved") {
+//       return (
+//         <p className="uppercase font-semibold text-green-600">Chấp thuận</p>
+//       );
+//     } else if (statusName === "rejected") {
+//       return <p className="uppercase font-semibold text-red-600">Từ chối</p>;
+//     } else {
+//       return (
+//         <p className="uppercase font-semibold text-amber-600">Chờ xử lý</p>
+//       );
+//     }
+//   };
 
 const PendingPostReports = () => {
-  const [postReports, setPostReports] = useState<ReportTableData[]>([]);
+  // const [postReports, setPostReports] = useState<ReportTableData[]>([]);
   const [filteredPostReports, setFilteredPostReports] = useState<
     ReportTableData[]
   >([]);
@@ -98,7 +98,7 @@ const PendingPostReports = () => {
       .get(`${reportAPI}/get-pending-post-reports`)
       .then(({ data }) => {
         // console.log(data)
-        setPostReports(data);
+        // setPostReports(data);
         setFilteredPostReports(data);
       })
       .catch((err) => console.log(err?.response.data.message));

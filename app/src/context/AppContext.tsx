@@ -65,12 +65,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const logout = () => {
     axios.post(`${authAPI}/logout`,{id: user?.id})
-    .then(res => {
+    .then(() => {
       toast.success("Thoát đăng nhập thành công");
       setUser(null);
       localStorage.clear();
     })
-    .catch(err => {
+    .catch(() => {
       toast.error("Lỗi thoát đăng nhập!")
       setUser(null);
       localStorage.removeItem("accessToken");
@@ -86,7 +86,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             setUser(res?.data);
                 })
           .catch((error) => {
-            // console.log(error.response?.data?.message);
+            console.log(error.response?.data?.message);
         });
   }, [location.pathname]);
 

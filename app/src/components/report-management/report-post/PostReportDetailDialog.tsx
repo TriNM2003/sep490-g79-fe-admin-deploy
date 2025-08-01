@@ -27,7 +27,7 @@ const PostReportDetailDialogUI = ({
 
     const postPhotos = dialogDetail.detail?.post?.photos ?? [] //anh tu post
       const evidencePhotos = dialogDetail.detail?.photos ?? []  //anh tu bang chung
-      const allPhotos = [...postPhotos, ...evidencePhotos] //tat ca anh
+      // const allPhotos = [...postPhotos, ...evidencePhotos] //tat ca anh
 
   const statusTiengViet = (statusName: string) => {
     if (statusName === "approved") {

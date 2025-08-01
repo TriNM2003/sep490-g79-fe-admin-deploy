@@ -9,33 +9,29 @@ import { Input } from '@/components/ui/input';
 import AppContext from '@/context/AppContext';
 import type { UserTableData } from '@/types/UserTableData';
 import useAuthAxios from '@/utils/authAxios';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu';
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Ban, ChevronDown, MoreHorizontal, NotebookText, RotateCcwKey } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { z } from 'zod';
 
-type Checked = DropdownMenuCheckboxItemProps["checked"]
+// type Checked = DropdownMenuCheckboxItemProps["checked"]
 
-const addUserSchema = z
-  .object({
-    fullName: z
-    .string()
-    .trim()
-    .min(6, "Họ và tên quá ngắn")
-    .regex(/^[\p{L}\s-]+$/u,"Tên chỉ được chứa chữ cái, khoảng trắng và dấu gạch nối"
-    )
-    .refine(
-      (val) => (val.match(/\p{L}/gu) || []).length >= 3,
-      "Tên phải có ít nhất 3 chữ cái"
-    ),
-    email: z.string().email("Email không hợp lệ"),
-    password: z.string().min(6, "Mật khẩu phải từ 6 ký tự"),
-    roles: z.array(z.string()).min(1, "Vui lòng chọn vai trò"),
-  })
+// const addUserSchema = z
+//   .object({
+//     fullName: z
+//     .string()
+//     .trim()
+//     .min(6, "Họ và tên quá ngắn")
+//     .regex(/^[\p{L}\s-]+$/u,"Tên chỉ được chứa chữ cái, khoảng trắng và dấu gạch nối"
+//     )
+//     .refine(
+//       (val) => (val.match(/\p{L}/gu) || []).length >= 3,
+//       "Tên phải có ít nhất 3 chữ cái"
+//     ),
+//     email: z.string().email("Email không hợp lệ"),
+//     password: z.string().min(6, "Mật khẩu phải từ 6 ký tự"),
+//     roles: z.array(z.string()).min(1, "Vui lòng chọn vai trò"),
+//   })
 
 type dialogDetail = {
   isOpen: boolean;
@@ -72,15 +68,15 @@ const UserManagement = () => {
       }
     });
 
-        const form = useForm<z.infer<typeof addUserSchema>>({
-          resolver: zodResolver(addUserSchema),
-          defaultValues: {
-            fullName: "",
-            email: "",
-            password: "",
-            roles: [],
-          },
-        });
+        // const form = useForm<z.infer<typeof addUserSchema>>({
+        //   resolver: zodResolver(addUserSchema),
+        //   defaultValues: {
+        //     fullName: "",
+        //     email: "",
+        //     password: "",
+        //     roles: [],
+        //   },
+        // });
 
     useEffect(() => {
       authAxios.get(`${userAPI}/get-users-list`)
@@ -129,14 +125,14 @@ const UserManagement = () => {
     //   }
     // };
 
-    const handleViewAccountDetail = async (userId:string) => {
-      try {
-        console.log(userId);
+    // const handleViewAccountDetail = async (userId:string) => {
+    //   try {
+    //     console.log(userId);
         
-      } catch (error: any) {
-        console.log(error)
-      }
-    }
+    //   } catch (error: any) {
+    //     console.log(error)
+    //   }
+    // }
 
     const handleBanUser = async (userId : string) => {
       try {
@@ -185,7 +181,7 @@ const UserManagement = () => {
           return;
         }
     
-        const response = await authAxios.put(`${userAPI}/change-roles/${userId}`, {roles});
+        await authAxios.put(`${userAPI}/change-roles/${userId}`, {roles});
         // console.log(response?.data.message);
         toast.success("Thay đổi vai trò người dùng thành công!")
         authAxios.get(`${userAPI}/get-users-list`)

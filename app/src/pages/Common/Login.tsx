@@ -7,7 +7,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from "sonner";
 import { Loader2Icon } from 'lucide-react';
-import { useContext, useRef, useState } from 'react';
+import { useContext, useState } from 'react';
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -30,7 +30,7 @@ const loginSchema = z.object({
 function Login() {
   const [loginLoading, setLoginLoading] = useState<Boolean>(false);
   // const [googleloginLoading, setGoogleLoginLoading] = useState<Boolean>(false);
-  const hasRun = useRef(false);
+  // const hasRun = useRef(false);
   const { login, authAPI } = useContext(AppContext);
   const navigate = useNavigate();
   

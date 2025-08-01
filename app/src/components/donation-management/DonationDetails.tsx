@@ -44,17 +44,17 @@ type DonationSummary = {
 };
 
 const DonationDetails = () => {
-      const [donationData, setDonationData] = useState<DonationTableData[]>([]);
+      // const [donationData, setDonationData] = useState<DonationTableData[]>([]);
       const [filteredDonations, setFilteredDonations] = useState<DonationTableData[]>([]);
-      const [monthlyDonations, setMonthlyDonations] = useState<
-        {
-          month: string;
-          amount: number;
-        }[]
-      >([]);
+      // const [monthlyDonations, setMonthlyDonations] = useState<
+      //   {
+      //     month: string;
+      //     amount: number;
+      //   }[]
+      // >([]);
       const {donationAPI} = useContext(AppContext);
       const authAxios = useAuthAxios();
-      const [donationRefresh, setDonationRefresh] = useState<boolean>(false);
+      // const [donationRefresh, setDonationRefresh] = useState<boolean>(false);
       const [dialogDetail, setDialogDetail] = useState<dialogDetail>({
         isOpen: false,
         detail: {
@@ -87,21 +87,14 @@ const DonationDetails = () => {
       useEffect(() => {
         authAxios.get(`${donationAPI}/get-all-donations`)
         .then(({data}) => {
-          setDonationData(data);
+          // setDonationData(data);
           setFilteredDonations(data)
         })
         .catch((err:any) => {
           console.log(err?.response.data.message)
         })
 
-        authAxios.get(`${donationAPI}/get-monthly-donations`)
-        .then(({data}) => {
-          setMonthlyDonations(data)
-        })
-        .catch((err:any) => {
-          console.log(err?.response.data.message)
-        })
-      }, [donationRefresh])
+      }, [])
 
       const totalDonationAmount = useMemo(() => {
         return filteredDonations.reduce((acc, current) => acc += current.amount, 0);

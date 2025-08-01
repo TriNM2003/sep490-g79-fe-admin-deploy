@@ -126,7 +126,7 @@ const SpeciesManagement = () => {
       const columns: ColumnDef<Species>[] = [
         {
           header: "STT",
-          cell: ({ row, table }) => {
+          cell: ({ row }) => {
             return <p className="text-left ms-2">{row.index + 1}</p>;
           },
         },
