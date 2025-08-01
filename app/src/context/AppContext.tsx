@@ -4,7 +4,7 @@ import axios from "axios";
 import React, { createContext, useState, useContext, type ReactNode, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
-
+const API_KEY = import.meta.env.BE_API_KEY;
 interface AppContextType {
   user: User | null;
   accessToken: string | null;
@@ -47,15 +47,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const authAxios = useAuthAxios();
 
   // APIs
-  const coreAPI = 'http://localhost:9999';
-  const authAPI = 'http://localhost:9999/auth';
-  const userAPI = 'http://localhost:9999/users/admin';
-  const shelterAPI = 'http://localhost:9999/shelters/admin';
-  const donationAPI = 'http://localhost:9999/donations/admin';
-  const blogAPI = 'http://localhost:9999/blogs/admin';
-  const reportAPI = 'http://localhost:9999/reports/admin';
-  const breedAPI = 'http://localhost:9999/breeds/admin';
-  const speciesAPI = 'http://localhost:9999/species/admin';
+  const coreAPI = API_KEY;
+  const authAPI = `${API_KEY}/auth`;
+  const userAPI = `${API_KEY}//users/admin`;
+  const shelterAPI = `${API_KEY}/shelters/admin`;
+  const donationAPI = `${API_KEY}//donations/admin`;
+  const blogAPI = `${API_KEY}//blogs/admin`;
+  const reportAPI = `${API_KEY}//reports/admin`;
+  const breedAPI = `${API_KEY}/:9999/breeds/admin`;
+  const speciesAPI = `${API_KEY}/:9999/species/admin`;
 
 
   const login = (accessToken: string, userData: User) => {
