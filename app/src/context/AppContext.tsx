@@ -49,13 +49,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // APIs
   const coreAPI = API_KEY;
   const authAPI = `${API_KEY}/auth`;
-  const userAPI = `${API_KEY}//users/admin`;
+  const userAPI = `${API_KEY}/users/admin`;
   const shelterAPI = `${API_KEY}/shelters/admin`;
-  const donationAPI = `${API_KEY}//donations/admin`;
-  const blogAPI = `${API_KEY}//blogs/admin`;
-  const reportAPI = `${API_KEY}//reports/admin`;
-  const breedAPI = `${API_KEY}/:9999/breeds/admin`;
-  const speciesAPI = `${API_KEY}/:9999/species/admin`;
+  const donationAPI = `${API_KEY}/donations/admin`;
+  const blogAPI = `${API_KEY}/blogs/admin`;
+  const reportAPI = `${API_KEY}/reports/admin`;
+  const breedAPI = `${API_KEY}/breeds/admin`;
+  const speciesAPI = `${API_KEY}/species/admin`;
 
 
   const login = (accessToken: string, userData: User) => {
