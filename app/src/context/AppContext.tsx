@@ -4,7 +4,7 @@ import axios from "axios";
 import React, { createContext, useState, useContext, type ReactNode, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
-const API_KEY = import.meta.env.BE_API_KEY;
+const API_KEY = import.meta.env.VITE_BE_API_KEY;
 interface AppContextType {
   user: User | null;
   accessToken: string | null;
